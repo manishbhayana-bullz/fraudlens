@@ -1063,7 +1063,7 @@ CRITICAL: Output ONLY the raw JSON object. No markdown. No backticks. No thinkin
         contents: [{
           parts: [{ text: systemPrompt + '\n\n' + userPrompt }]
         }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 2000 }
+        generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
       })
     }
   );
