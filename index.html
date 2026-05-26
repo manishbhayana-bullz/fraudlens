@@ -1080,10 +1080,17 @@ CRITICAL: Output ONLY the raw JSON object. No markdown. No backticks. No thinkin
   }
 
   const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  console.log('Raw Gemini response:', text);
   
   // Strip markdown fences if present
-  const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+  // Unescape if Gemini double-encoded the JSON
+if (text.startsWith('"') && text.endsWith('"')) {
+  try { text = JSON.parse(text); } catch(e) {}
+}
+text = text.replace(/\\"/g, '"').replace(/^"|"$/g, '');
+const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+console.log('Cleaned response:', clean.substring(0, 300));
   
   try {
     return JSON.parse(clean);
