@@ -1175,7 +1175,7 @@ TXN010,2024-01-15 16:02:05,12000.00,UnknownMerchant,Unknown,CUST9921,3399,MM,Yan
 async function runAnalysis() {
   const key = getApiKey();
   if (!key) {
-    alert('Please save your Anthropic API key first.');
+    alert('Please save your Gemini API key first.');
     document.getElementById('api-key-input').focus();
     return;
   }
@@ -1282,7 +1282,7 @@ console.log('Cleaned response:', clean.substring(0, 300));
 // ── Loading State ──
 const loadingMsgs = [
   'Preparing transaction data…',
-  'Sending to Claude AI for analysis…',
+  'Sending to Gemini AI for analysis…',
   'Evaluating velocity patterns…',
   'Checking geographic anomalies…',
   'Scoring risk for each transaction…',
