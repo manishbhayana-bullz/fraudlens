@@ -88,6 +88,24 @@ input { font-family: var(--font); }
   color: var(--text-primary);
 }
 .logo-name span { color: var(--accent); }
+.header-nav {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.nav-tab {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.nav-tab:hover { color: var(--text-primary); background: var(--off-white); }
+.nav-tab.active { color: var(--accent); background: var(--accent-light); }
 .header-badge {
   font-size: 0.7rem;
   font-weight: 600;
@@ -741,10 +759,15 @@ tbody tr:hover td { background: var(--off-white); }
     </div>
     <span class="logo-name">Fraud<span>Lens</span></span>
   </div>
+  <nav class="header-nav">
+    <button class="nav-tab active" onclick="showTab('analyse')">Analyse</button>
+    <button class="nav-tab" onclick="showTab('about')">About</button>
+  </nav>
   <span class="header-badge">Beta</span>
 </header>
 
 <main class="main">
+<div id="tab-analyse">
 
   <!-- STEP 1: API KEY -->
   <div class="card" id="api-key-card">
@@ -922,7 +945,10 @@ tbody tr:hover td { background: var(--off-white); }
     </button>
   </div>
 
-<!-- ABOUT SECTION -->
+</div><!-- end tab-analyse -->
+
+<div id="tab-about" class="hidden">
+  <!-- ABOUT SECTION -->
   <div class="card" id="about-section" style="margin-top:8px">
     <div class="card-title">About FraudLens</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px" class="about-grid">
@@ -1004,6 +1030,7 @@ tbody tr:hover td { background: var(--off-white); }
     <div style="margin-top:12px">FraudLens · Version 1.0 · Built 2026 · Powered by Gemini 2.5 Flash</div>
   </div>
 
+</div><!-- end tab-about -->
 </main>
 
 <script>
@@ -1049,6 +1076,14 @@ function updateKeyStatus() {
 }
 updateKeyStatus();
 initCurrency();
+
+function showTab(tab) {
+  document.getElementById('tab-analyse').classList.toggle('hidden', tab !== 'analyse');
+  document.getElementById('tab-about').classList.toggle('hidden', tab !== 'about');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.nav-tab[onclick="showTab('${tab}')"]`).classList.add('active');
+  window.scrollTo(0, 0);
+}
 
 // ── CSV Parsing ──
 function parseCSV(text) {
