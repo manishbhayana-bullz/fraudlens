@@ -1022,7 +1022,8 @@ async function runAnalysis() {
     lastTransactions = rows;
     showDashboard(result, rows);
   } catch(err) {
-    showError(err.message);
+    showError(err.message || 'Unknown error — check browser console for details.');
+    console.error('Full error:', err);
   }
 }
 
@@ -1143,10 +1144,12 @@ function stopLoading() {
 }
 function showError(msg) {
   stopLoading();
+  document.getElementById('loading-card').classList.remove('hidden');
   document.getElementById('loading-wrap').style.display = 'none';
   const box = document.getElementById('error-box');
   box.classList.add('visible');
-  document.getElementById('error-text').textContent = msg;
+  document.getElementById('error-text').textContent = msg || 'Something went wrong. Please retry.';
+  console.error('FraudLens error:', msg);
 }
 
 // ── Dashboard ──
