@@ -225,6 +225,23 @@ input { font-family: var(--font); }
   justify-content: center;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
+}
+.currency-select {
+  padding: 7px 12px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--white);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+}
+.currency-select:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 .btn-outline {
   padding: 7px 16px;
@@ -692,6 +709,7 @@ tbody tr:hover td { background: var(--off-white); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .about-grid { grid-template-columns: 1fr !important; }
   .header { padding: 0 16px; }
   .main { padding: 20px 16px; }
   .card { padding: 20px 18px; }
@@ -758,10 +776,23 @@ tbody tr:hover td { background: var(--off-white); }
     </div>
 
     <div class="upload-actions">
-      <button class="btn-outline" onclick="downloadSampleCSV()">
-        ↓ Download Sample CSV
-      </button>
-    </div>
+  <button class="btn-outline" onclick="downloadSampleCSV()">
+    ↓ Download Sample CSV
+  </button>
+  <select class="currency-select" id="currency-select" onchange="saveCurrency()">
+    <option value="INR">₹ INR — India</option>
+    <option value="USD">$ USD — United States</option>
+    <option value="GBP">£ GBP — United Kingdom</option>
+    <option value="EUR">€ EUR — Europe</option>
+    <option value="AED">AED — UAE</option>
+    <option value="SGD">S$ SGD — Singapore</option>
+    <option value="AUD">A$ AUD — Australia</option>
+  </select>
+  <button class="btn-primary" id="analyse-btn-top" disabled onclick="runAnalysis()">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Analyse with AI →
+  </button>
+</div>
 
     <!-- Preview -->
     <div class="preview-wrap" id="preview-wrap">
@@ -891,6 +922,88 @@ tbody tr:hover td { background: var(--off-white); }
     </button>
   </div>
 
+<!-- ABOUT SECTION -->
+  <div class="card" id="about-section" style="margin-top:8px">
+    <div class="card-title">About FraudLens</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px" class="about-grid">
+      <div>
+        <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);margin-bottom:8px">What it does</div>
+        <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7">
+          FraudLens is an AI-powered transaction risk scoring tool for fintech and banking teams. Upload a CSV of financial transactions and receive instant risk analysis — every transaction is scored 0–100, categorised as High / Medium / Low risk, and flagged with specific fraud signals such as velocity attacks, geographic anomalies, unusual timing, and merchant risk patterns.
+        </p>
+      </div>
+      <div>
+        <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);margin-bottom:8px">Who it's for</div>
+        <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7">
+          Fraud analysts, compliance officers, fintech product managers, and risk teams at banks, NBFCs, payment gateways, and digital lending platforms who need a fast first-pass risk triage on transaction data without setting up complex infrastructure.
+        </p>
+      </div>
+      <div>
+        <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);margin-bottom:8px">Technology stack</div>
+        <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7">
+          Google Gemini 2.5 Flash (AI engine) · Direct browser API calls (zero backend) · Vanilla HTML / CSS / JS · localStorage for key and preferences · Zero backend infrastructure · Cost to run: ₹0
+        </p>
+      </div>
+      <div>
+        <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);margin-bottom:8px">Fraud signals detected</div>
+        <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7">
+          Velocity attacks · Geographic anomalies · Cross-border irregularities · Amount spikes · Merchant risk · Card-not-present fraud · Unusual transaction timing · Duplicate merchant patterns
+        </p>
+      </div>
+    </div>
+
+    <!-- Roadmap -->
+    <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px">
+      <div style="font-size:0.78rem;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px">Roadmap</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px;background:var(--low-bg);border:1px solid var(--low-border);border-radius:var(--radius);padding:14px 16px">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--low);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 1 · Live ✓</div>
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Working Prototype</div>
+          <div style="font-size:0.76rem;color:var(--text-secondary)">CSV upload, AI risk scoring, dashboard, export, live deployment</div>
+        </div>
+        <div style="flex:1;min-width:180px;background:var(--med-bg);border:1px solid var(--med-border);border-radius:var(--radius);padding:14px 16px">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--med);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 2 · Planned</div>
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Customer Risk Profiles</div>
+          <div style="font-size:0.76rem;color:var(--text-secondary)">Group by customer ID, identify highest-risk accounts, pattern clustering</div>
+        </div>
+        <div style="flex:1;min-width:180px;background:var(--accent-light);border:1px solid #bfd3fd;border-radius:var(--radius);padding:14px 16px">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 3 · Planned</div>
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Risk Trend Charts</div>
+          <div style="font-size:0.76rem;color:var(--text-secondary)">Visual analytics, risk distribution charts, time-series fraud patterns</div>
+        </div>
+        <div style="flex:1;min-width:180px;background:var(--off-white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 4 · Planned</div>
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">GRC Integration</div>
+          <div style="font-size:0.76rem;color:var(--text-secondary)">API integration with bank fraud management systems, audit trails</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Built by -->
+    <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div style="font-size:0.8rem;color:var(--text-secondary)">
+        Built by a senior Product Manager with experience across banking, fintech, and risk domains.
+        Built end-to-end without an engineering team — demonstrating how AI-enabled PMs can ship production-grade products independently.
+      </div>
+      <div style="display:flex;gap:10px">
+        <a href="https://linkedin.com" target="_blank" style="font-size:0.8rem;font-weight:600;color:var(--accent)">LinkedIn ↗</a>
+        <a href="https://github.com/manishbhayana-bullz" target="_blank" style="font-size:0.8rem;font-weight:600;color:var(--accent)">GitHub ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER DISCLAIMER -->
+  <div style="text-align:center;padding:24px 16px 32px;font-size:0.76rem;color:var(--text-muted);line-height:1.8;border-top:1px solid var(--border);margin-top:8px">
+    <div style="font-weight:700;color:var(--text-secondary);margin-bottom:6px">⚠️ Disclaimer</div>
+    <div style="max-width:700px;margin:0 auto">
+      FraudLens is a research and exploration tool built for educational purposes. It is <strong>not</strong> a substitute for a certified fraud detection system, qualified risk management platform, or professional compliance advice.
+      All outputs are AI-generated and may be incomplete or inaccurate. <strong>Never use this tool as the sole basis for blocking transactions, filing regulatory reports, or making compliance decisions.</strong>
+      FraudLens does not store, log, or transmit any transaction data you upload. All processing occurs directly in your browser.
+      The creator accepts no liability for decisions made based on this tool's outputs.
+    </div>
+    <div style="margin-top:12px">FraudLens · Version 1.0 · Built 2026 · Powered by Gemini 2.5 Flash</div>
+  </div>
+
 </main>
 
 <script>
@@ -901,6 +1014,21 @@ let currentFilter = 'ALL';
 let lastTransactions = [];
 
 // ── API Key ──
+function saveCurrency() {
+  const val = document.getElementById('currency-select').value;
+  localStorage.setItem('fl_currency', val);
+}
+function getCurrency() {
+  return localStorage.getItem('fl_currency') || 'INR';
+}
+function getCurrencySymbol(code) {
+  const map = { INR:'₹', USD:'$', GBP:'£', EUR:'€', AED:'AED ', SGD:'S$', AUD:'A$' };
+  return map[code] || code + ' ';
+}
+function initCurrency() {
+  const saved = getCurrency();
+  document.getElementById('currency-select').value = saved;
+}
 function saveApiKey() {
   const val = document.getElementById('api-key-input').value.trim();
   if (!val) { alert('Please enter an API key.'); return; }
@@ -920,6 +1048,7 @@ function updateKeyStatus() {
   }
 }
 updateKeyStatus();
+initCurrency();
 
 // ── CSV Parsing ──
 function parseCSV(text) {
@@ -984,6 +1113,7 @@ function showPreview(filename) {
   ).join('') + '</tbody>';
   table.innerHTML = html;
   document.getElementById('analyse-btn').disabled = false;
+  document.getElementById('analyse-btn-top').disabled = false;
 }
 
 // ── Sample CSV ──
@@ -1167,13 +1297,13 @@ function showDashboard(data, originalRows) {
 
   const s = data.summary;
   document.getElementById('dash-sub').textContent =
-    `Analysed ${s.total} transactions · Total value ₹${fmt(s.total_amount || 0)}`;
+    `Analysed ${s.total} transactions · Total value ${getCurrencySymbol(getCurrency())}${fmt(s.total_amount || 0)}`;
 
   document.getElementById('m-total').textContent = s.total;
   document.getElementById('m-high').textContent = s.high_risk;
   document.getElementById('m-high-pct').textContent = s.total
     ? `${Math.round(s.high_risk/s.total*100)}% of total` : '';
-  document.getElementById('m-flagged').textContent = '₹' + fmt(s.flagged_amount || 0);
+  document.getElementById('m-flagged').textContent = getCurrencySymbol(getCurrency()) + fmt(s.flagged_amount || 0);
   document.getElementById('m-flagged-pct').textContent = s.total_amount
     ? `${Math.round((s.flagged_amount||0)/s.total_amount*100)}% of total value` : '';
 
@@ -1243,7 +1373,7 @@ function renderTable(transactions, originalRows) {
       <tr onclick="toggleRow(this, 'exp-${idx}')" id="row-${idx}">
         <td><svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></td>
         <td class="txn-id-cell">${t.transaction_id || '—'}</td>
-        <td class="amount-cell">${amount ? Number(amount).toLocaleString('en-IN',{style:'currency',currency:'INR',minimumFractionDigits:2}) : '—'}</td>
+        <td class="amount-cell">${amount ? getCurrencySymbol(getCurrency()) + Number(amount).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
         <td style="color:var(--text-secondary);font-size:.8rem">${merchant}</td>
         <td><span class="risk-badge ${t.risk_level}">${t.risk_level}</span></td>
         <td>
@@ -1304,6 +1434,7 @@ function resetApp() {
   currentFilter = 'ALL';
   document.getElementById('preview-wrap').style.display = 'none';
   document.getElementById('analyse-btn').disabled = true;
+  document.getElementById('analyse-btn-top').disabled = true;
   document.getElementById('csv-file').value = '';
   document.getElementById('loading-card').classList.add('hidden');
   document.getElementById('dashboard').classList.add('hidden');
