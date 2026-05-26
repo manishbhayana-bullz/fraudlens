@@ -1020,6 +1020,7 @@ async function runAnalysis() {
     const result = await callClaudeAPI(key, rows);
     analysisResult = result;
     lastTransactions = rows;
+    console.log('Calling showDashboard with:', result.summary);
     showDashboard(result, rows);
   } catch(err) {
     showError(err.message || 'Unknown error — check browser console for details.');
@@ -1156,9 +1157,12 @@ function showError(msg) {
 
 // ── Dashboard ──
 function showDashboard(data, originalRows) {
+  console.log('showDashboard called');
   stopLoading();
   document.getElementById('loading-card').classList.add('hidden');
+  document.getElementById('upload-card').classList.add('hidden');
   document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('dashboard').style.display = 'block';
   document.getElementById('dashboard').classList.add('fade-in');
 
   const s = data.summary;
