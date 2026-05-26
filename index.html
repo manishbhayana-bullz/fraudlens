@@ -295,7 +295,7 @@ tbody td {
   border-bottom: 1px solid var(--border);
   color: var(--text-primary);
   white-space: nowrap;
-  font-family: var(--mono);
+  font-family: var(--font);
   font-size: 0.76rem;
 }
 tbody tr:last-child td { border-bottom: none; }
@@ -644,8 +644,8 @@ tbody tr:hover td { background: var(--off-white); }
   align-items: center;
   gap: 3px;
   padding: 2px 7px;
-  background: #f1f5fd;
-  color: #3b5bdb;
+  background: #f4f5f7;
+  color: #3d4554;
   border: 1px solid #c5d3f8;
   border-radius: 4px;
   font-size: 0.68rem;
@@ -1173,7 +1173,7 @@ function showDashboard(data, originalRows) {
   document.getElementById('m-high').textContent = s.high_risk;
   document.getElementById('m-high-pct').textContent = s.total
     ? `${Math.round(s.high_risk/s.total*100)}% of total` : '';
-  document.getElementById('m-flagged').textContent = '$' + fmt(s.flagged_amount || 0);
+  document.getElementById('m-flagged').textContent = '₹' + fmt(s.flagged_amount || 0);
   document.getElementById('m-flagged-pct').textContent = s.total_amount
     ? `${Math.round((s.flagged_amount||0)/s.total_amount*100)}% of total value` : '';
 
@@ -1243,7 +1243,7 @@ function renderTable(transactions, originalRows) {
       <tr onclick="toggleRow(this, 'exp-${idx}')" id="row-${idx}">
         <td><svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></td>
         <td class="txn-id-cell">${t.transaction_id || '—'}</td>
-        <td class="amount-cell">${amount ? '$'+Number(amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
+        <td class="amount-cell">${amount ? Number(amount).toLocaleString('en-IN',{style:'currency',currency:'INR',minimumFractionDigits:2}) : '—'}</td>
         <td style="color:var(--text-secondary);font-size:.8rem">${merchant}</td>
         <td><span class="risk-badge ${t.risk_level}">${t.risk_level}</span></td>
         <td>
