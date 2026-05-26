@@ -1035,11 +1035,6 @@ function retryAnalysis() {
 
 async function callClaudeAPI(apiKey, rows) {
   await new Promise(r => setTimeout(r, 2000));
-  const messages = [
-    {
-      role: 'system' in {} ? 'system' : 'user',  
-    }
-  ];
 
   const systemPrompt = `You are a financial fraud detection AI. Analyse the provided transactions and return ONLY valid JSON with no markdown, no preamble, no explanation outside JSON. Return exactly this structure:
 {"summary":{"total":0,"high_risk":0,"medium_risk":0,"low_risk":0,"total_amount":0,"flagged_amount":0},"transactions":[{"transaction_id":"","risk_level":"HIGH|MEDIUM|LOW","risk_score":0,"flags":[],"explanation":""}],"top_patterns":[],"recommendations":[]}
