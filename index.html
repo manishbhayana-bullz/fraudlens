@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FraudLens — Transaction Risk Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── CSS Variables ── */
+:root {
+  --white:       #ffffff;
+  --off-white:   #f8f9fb;
+  --border:      #e4e8ef;
+  --border-mid:  #d0d7e3;
+  --text-primary:#0f1623;
+  --text-secondary:#5a6478;
+  --text-muted:  #9aa3b5;
+  --accent:      #1a56db;
+  --accent-light:#eff4ff;
+  --accent-hover:#1648c0;
+  --high:        #dc2626;
+  --high-bg:     #fef2f2;
+  --high-border: #fecaca;
+  --med:         #d97706;
+  --med-bg:      #fffbeb;
+  --med-border:  #fde68a;
+  --low:         #16a34a;
+  --low-bg:      #f0fdf4;
+  --low-border:  #bbf7d0;
+  --shadow-sm:   0 1px 3px rgba(15,22,35,.07), 0 1px 2px rgba(15,22,35,.04);
+  --shadow-md:   0 4px 12px rgba(15,22,35,.08), 0 2px 6px rgba(15,22,35,.05);
+  --shadow-lg:   0 8px 28px rgba(15,22,35,.1),  0 4px 10px rgba(15,22,35,.06);
+  --radius:      10px;
+  --radius-sm:   6px;
+  --radius-lg:   16px;
+  --font:        'DM Sans', sans-serif;
+  --mono:        'DM Mono', monospace;
+  --transition:  0.18s ease;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font);
+  background: var(--off-white);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+input { font-family: var(--font); }
+
+/* ── Header ── */
+.header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; }
+.logo-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+.logo-name span { color: var(--accent); }
+.header-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid #bfd3fd;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* ── Main Layout ── */
+.main { max-width: 1100px; margin: 0 auto; padding: 36px 24px; }
+
+/* ── Section Cards ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+}
+.card-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+/* ── API Key Section ── */
+.api-key-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.api-key-input {
+  flex: 1;
+  padding: 9px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  background: var(--off-white);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+}
+.api-key-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+  background: var(--white);
+}
+.api-key-input::placeholder { font-family: var(--font); letter-spacing: 0; color: var(--text-muted); }
+.btn-save-key {
+  padding: 9px 18px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: background var(--transition);
+  white-space: nowrap;
+}
+.btn-save-key:hover { background: var(--accent-hover); }
+.api-key-hint {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.key-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+.key-status.saved {
+  color: var(--low);
+  background: var(--low-bg);
+  border: 1px solid var(--low-border);
+}
+.key-status.missing {
+  color: var(--high);
+  background: var(--high-bg);
+  border: 1px solid var(--high-border);
+}
+
+/* ── Upload Area ── */
+.upload-zone {
+  border: 2px dashed var(--border-mid);
+  border-radius: var(--radius);
+  padding: 48px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  background: var(--off-white);
+  position: relative;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.upload-icon {
+  width: 48px; height: 48px;
+  background: var(--accent-light);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.upload-icon svg { width: 24px; height: 24px; stroke: var(--accent); fill: none; stroke-width: 1.8; }
+.upload-title { font-size: 1rem; font-weight: 600; margin-bottom: 5px; }
+.upload-sub { font-size: 0.83rem; color: var(--text-secondary); }
+.upload-sub strong { color: var(--accent); }
+.upload-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  align-items: center;
+}
+.btn-outline {
+  padding: 7px 16px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--white);
+  transition: all var(--transition);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* ── Preview Table ── */
+.preview-wrap {
+  margin-top: 24px;
+  display: none;
+}
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.preview-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 20px;
+  border: 1px solid #bfd3fd;
+}
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+thead th {
+  background: var(--off-white);
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  letter-spacing: 0.3px;
+}
+tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--off-white); }
+
+/* ── Analyse Button ── */
+.analyse-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+.rows-info {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+  box-shadow: 0 1px 3px rgba(26,86,219,.3);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 12px rgba(26,86,219,.3);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-primary svg { width: 16px; height: 16px; fill: none; stroke: white; stroke-width: 2; }
+
+/* ── Loading ── */
+.loading-wrap {
+  display: none;
+  text-align: center;
+  padding: 56px 32px;
+}
+.spinner-ring {
+  width: 52px; height: 52px;
+  margin: 0 auto 20px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.loading-msg {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  min-height: 22px;
+  transition: opacity 0.3s;
+}
+.progress-bar-wrap {
+  width: 280px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 16px auto 0;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* ── Error ── */
+.error-box {
+  display: none;
+  background: var(--high-bg);
+  border: 1px solid var(--high-border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: none;
+  align-items: flex-start;
+  gap: 12px;
+}
+.error-box.visible { display: flex; }
+.error-icon { flex-shrink: 0; margin-top: 1px; }
+.error-icon svg { width: 18px; height: 18px; stroke: var(--high); fill: none; stroke-width: 2; }
+.error-title { font-weight: 600; color: var(--high); font-size: 0.88rem; }
+.error-text { font-size: 0.82rem; color: #7f1d1d; margin-top: 3px; }
+.btn-retry {
+  margin-top: 10px;
+  padding: 6px 14px;
+  background: var(--high);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.btn-retry:hover { background: #b91c1c; }
+
+/* ── Dashboard ── */
+.dashboard { display: none; }
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dashboard-title { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.4px; }
+.dashboard-sub { font-size: 0.83rem; color: var(--text-secondary); margin-top: 3px; }
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.btn-export:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.btn-export svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ── Metric Cards ── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.metric-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+}
+.metric-card.danger::before { background: var(--high); }
+.metric-card.warn::before   { background: var(--med); }
+.metric-card.safe::before   { background: var(--low); }
+.metric-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.metric-value {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.metric-value.danger { color: var(--high); }
+.metric-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── Patterns & Recommendations ── */
+.insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.insight-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.insight-card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.insight-card-title svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+.pattern-list, .rec-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.pattern-list li, .rec-list li {
+  font-size: 0.83rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.pattern-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.rec-list li::before {
+  content: '✓';
+  color: var(--low);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Filter Tabs ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.filter-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.tab-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { background: var(--white); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+.tab-btn .count {
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.tab-btn.active .count-high   { background: var(--high-bg); color: var(--high); }
+.tab-btn.active .count-medium { background: var(--med-bg); color: var(--med); }
+.tab-btn.active .count-low    { background: var(--low-bg); color: var(--low); }
+.tab-btn .count               { background: var(--border); color: var(--text-muted); }
+.tab-btn.active .count        { background: var(--off-white); color: var(--text-secondary); }
+
+/* ── Transactions Table ── */
+.txn-table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.txn-table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+.txn-table thead th {
+  background: var(--off-white);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.74rem;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.txn-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.txn-table tbody tr:last-child { border-bottom: none; }
+.txn-table tbody tr:hover { background: var(--off-white); }
+.txn-table tbody tr.expanded { background: var(--accent-light); }
+.txn-table td { padding: 10px 14px; vertical-align: middle; }
+
+/* Risk Badge */
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.risk-badge.HIGH   { background: var(--high-bg); color: var(--high); border: 1px solid var(--high-border); }
+.risk-badge.MEDIUM { background: var(--med-bg); color: var(--med); border: 1px solid var(--med-border); }
+.risk-badge.LOW    { background: var(--low-bg); color: var(--low); border: 1px solid var(--low-border); }
+
+/* Score Bar */
+.score-cell { display: flex; align-items: center; gap: 8px; min-width: 100px; }
+.score-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.score-num { font-size: 0.78rem; font-weight: 700; font-family: var(--mono); min-width: 26px; }
+
+/* Flag Chips */
+.flags-cell { display: flex; flex-wrap: wrap; gap: 4px; }
+.flag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  background: #f1f5fd;
+  color: #3b5bdb;
+  border: 1px solid #c5d3f8;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Expand Row */
+.expand-row td {
+  padding: 0;
+  background: var(--accent-light);
+  border-bottom: 2px solid #bfd3fd;
+}
+.expand-content {
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.expand-content svg { flex-shrink: 0; margin-top: 1px; width: 15px; height: 15px; stroke: var(--accent); fill: none; stroke-width: 2; }
+.chevron-icon { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 2; transition: transform var(--transition); }
+.expanded .chevron-icon { transform: rotate(180deg); }
+.txn-id-cell { font-family: var(--mono); font-size: 0.77rem; color: var(--text-secondary); }
+.amount-cell { font-family: var(--mono); font-weight: 600; }
+
+/* ── Reset Button ── */
+.btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 20px;
+  transition: all var(--transition);
+}
+.btn-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .header { padding: 0 16px; }
+  .main { padding: 20px 16px; }
+  .card { padding: 20px 18px; }
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .insight-grid { grid-template-columns: 1fr; }
+  .api-key-row { flex-wrap: wrap; }
+  .analyse-row { flex-direction: column; align-items: flex-end; }
+  .metric-value { font-size: 1.35rem; }
+  .dashboard-header { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .filter-tabs { flex-wrap: wrap; }
+}
+
+/* ── Utilities ── */
+.hidden { display: none !important; }
+.fade-in { animation: fadeIn 0.35s ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="logo-name">Fraud<span>Lens</span></span>
+  </div>
+  <span class="header-badge">Beta</span>
+</header>
+
+<main class="main">
+
+  <!-- STEP 1: API KEY -->
+  <div class="card" id="api-key-card">
+    <div class="card-title">API Configuration</div>
+    <div class="api-key-row">
+      <input type="password" id="api-key-input" class="api-key-input"
+             placeholder="Paste your Gemini API key — AIza..."/>
+      <button class="btn-save-key" onclick="saveApiKey()">Save Key</button>
+    </div>
+    <div class="api-key-hint">
+      <span id="key-status" class="key-status missing">● No key saved</span>
+      &nbsp;·&nbsp;
+      Key stored in your browser only — sent directly to Google's API. Free tier: 1,500 requests/day, no card needed.
+      &nbsp;<a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Get free Gemini key →</a>
+    </div>
+  </div>
+
+  <!-- STEP 2: UPLOAD -->
+  <div class="card" id="upload-card">
+    <div class="card-title">Upload Transactions</div>
+
+    <div class="upload-zone" id="drop-zone">
+      <input type="file" id="csv-file" accept=".csv"/>
+      <div class="upload-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div class="upload-title">Drop your CSV file here</div>
+      <div class="upload-sub">or <strong>click to browse</strong> — .csv files only</div>
+    </div>
+
+    <div class="upload-actions">
+      <button class="btn-outline" onclick="downloadSampleCSV()">
+        ↓ Download Sample CSV
+      </button>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-wrap" id="preview-wrap">
+      <div class="preview-header">
+        <span class="preview-label">
+          Preview — first 5 rows
+          <span class="file-chip" id="file-chip">file.csv</span>
+        </span>
+        <span class="rows-info" id="rows-info"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="preview-table"></table>
+      </div>
+    </div>
+
+    <!-- Analyse -->
+    <div class="analyse-row">
+      <button class="btn-primary" id="analyse-btn" disabled onclick="runAnalysis()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Analyse with AI →
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="card hidden" id="loading-card">
+    <div class="loading-wrap" id="loading-wrap" style="display:block">
+      <div class="spinner-ring"></div>
+      <div class="loading-title">Analysing transactions…</div>
+      <div class="loading-msg" id="loading-msg">Preparing data for AI analysis</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+    <div class="error-box" id="error-box">
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div>
+        <div class="error-title">Analysis Failed</div>
+        <div class="error-text" id="error-text"></div>
+        <button class="btn-retry" onclick="retryAnalysis()">↺ Retry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard hidden" id="dashboard">
+
+    <div class="dashboard-header">
+      <div>
+        <div class="dashboard-title">Risk Analysis Results</div>
+        <div class="dashboard-sub" id="dash-sub">Analysed 0 transactions</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-export" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Results CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Total Transactions</div>
+        <div class="metric-value" id="m-total">—</div>
+        <div class="metric-sub">across all risk levels</div>
+      </div>
+      <div class="metric-card danger">
+        <div class="metric-label">High Risk</div>
+        <div class="metric-value danger" id="m-high">—</div>
+        <div class="metric-sub" id="m-high-pct"></div>
+      </div>
+      <div class="metric-card warn">
+        <div class="metric-label">Flagged Amount</div>
+        <div class="metric-value" id="m-flagged">—</div>
+        <div class="metric-sub" id="m-flagged-pct"></div>
+      </div>
+      <div class="metric-card safe">
+        <div class="metric-label">Avg Risk Score</div>
+        <div class="metric-value" id="m-avg-score">—</div>
+        <div class="metric-sub">out of 100</div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="insight-grid" id="insight-grid"></div>
+
+    <!-- Transactions -->
+    <div class="filter-bar">
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="tab-btn active" data-filter="ALL" onclick="setFilter('ALL',this)">
+          All <span class="count" id="count-all">0</span>
+        </button>
+        <button class="tab-btn" data-filter="HIGH" onclick="setFilter('HIGH',this)">
+          High <span class="count count-high" id="count-high">0</span>
+        </button>
+        <button class="tab-btn" data-filter="MEDIUM" onclick="setFilter('MEDIUM',this)">
+          Medium <span class="count count-medium" id="count-medium">0</span>
+        </button>
+        <button class="tab-btn" data-filter="LOW" onclick="setFilter('LOW',this)">
+          Low <span class="count count-low" id="count-low">0</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="txn-table-wrap">
+      <table class="txn-table">
+        <thead>
+          <tr>
+            <th style="width:32px"></th>
+            <th>Transaction ID</th>
+            <th>Amount</th>
+            <th>Merchant</th>
+            <th>Risk Level</th>
+            <th>Score</th>
+            <th>Flags</th>
+          </tr>
+        </thead>
+        <tbody id="txn-tbody"></tbody>
+      </table>
+    </div>
+
+    <button class="btn-reset" onclick="resetApp()">
+      ← Analyse Another File
+    </button>
+  </div>
+
+</main>
+
+<script>
+// ── State ──
+let parsedCSV = { headers: [], rows: [] };
+let analysisResult = null;
+let currentFilter = 'ALL';
+let lastTransactions = [];
+
+// ── API Key ──
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val) { alert('Please enter an API key.'); return; }
+  localStorage.setItem('fl_gemini_key', val);
+  updateKeyStatus();
+  document.getElementById('api-key-input').value = '';
+}
+function getApiKey() { return localStorage.getItem('fl_gemini_key') || ''; }
+function updateKeyStatus() {
+  const el = document.getElementById('key-status');
+  if (getApiKey()) {
+    el.textContent = '● Key saved';
+    el.className = 'key-status saved';
+  } else {
+    el.textContent = '● No key saved';
+    el.className = 'key-status missing';
+  }
+}
+updateKeyStatus();
+
+// ── CSV Parsing ──
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return { headers: [], rows: [] };
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = smartSplit(lines[i]);
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = (vals[idx] || '').trim().replace(/^"|"$/g,''); });
+    rows.push(row);
+  }
+  return { headers, rows };
+}
+function smartSplit(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += c; }
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── File Upload ──
+document.getElementById('csv-file').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) handleFile(file);
+});
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith('.csv')) handleFile(file);
+  else alert('Please drop a .csv file.');
+});
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    parsedCSV = parseCSV(e.target.result);
+    if (parsedCSV.rows.length === 0) { alert('CSV appears empty.'); return; }
+    showPreview(file.name);
+  };
+  reader.readAsText(file);
+}
+function showPreview(filename) {
+  document.getElementById('file-chip').textContent = filename;
+  document.getElementById('rows-info').textContent =
+    `${parsedCSV.rows.length} rows · ${parsedCSV.headers.length} columns`;
+  const wrap = document.getElementById('preview-wrap');
+  wrap.style.display = 'block';
+  const table = document.getElementById('preview-table');
+  const preview = parsedCSV.rows.slice(0,5);
+  let html = '<thead><tr>' + parsedCSV.headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead>';
+  html += '<tbody>' + preview.map(row =>
+    '<tr>' + parsedCSV.headers.map(h => `<td>${row[h]||''}</td>`).join('') + '</tr>'
+  ).join('') + '</tbody>';
+  table.innerHTML = html;
+  document.getElementById('analyse-btn').disabled = false;
+}
+
+// ── Sample CSV ──
+function downloadSampleCSV() {
+  const sample = `transaction_id,timestamp,amount,merchant,merchant_category,customer_id,card_last4,country,city,is_online
+TXN001,2024-01-15 09:23:11,125.50,Amazon,E-Commerce,CUST4821,4532,US,Seattle,true
+TXN002,2024-01-15 10:05:33,4999.99,CryptoExchange,Finance,CUST2019,7891,RU,Moscow,true
+TXN003,2024-01-15 10:07:14,4980.00,CryptoExchange,Finance,CUST2019,7891,CN,Beijing,true
+TXN004,2024-01-15 11:22:44,45.00,Starbucks,Food & Beverage,CUST3301,2211,US,New York,false
+TXN005,2024-01-15 02:48:59,3200.00,LuxuryGoods Inc,Retail,CUST8847,9934,NG,Lagos,true
+TXN006,2024-01-15 13:10:00,18.75,Netflix,Entertainment,CUST4821,4532,US,Seattle,true
+TXN007,2024-01-15 14:33:22,850.00,Apple Store,Electronics,CUST1120,6678,US,San Francisco,false
+TXN008,2024-01-15 03:15:01,7500.00,Wire Transfer,Financial Services,CUST5544,1122,IR,Tehran,true
+TXN009,2024-01-15 15:55:10,299.99,Nike,Retail,CUST3301,2211,US,New York,false
+TXN010,2024-01-15 16:02:05,12000.00,UnknownMerchant,Unknown,CUST9921,3399,MM,Yangon,true`;
+  const blob = new Blob([sample], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sample_transactions.csv';
+  a.click();
+}
+
+// ── Analysis ──
+async function runAnalysis() {
+  const key = getApiKey();
+  if (!key) {
+    alert('Please save your Anthropic API key first.');
+    document.getElementById('api-key-input').focus();
+    return;
+  }
+  const rows = parsedCSV.rows.slice(0,50);
+  showLoading();
+  try {
+    const result = await callClaudeAPI(key, rows);
+    analysisResult = result;
+    lastTransactions = rows;
+    showDashboard(result, rows);
+  } catch(err) {
+    showError(err.message);
+  }
+}
+
+function retryAnalysis() {
+  document.getElementById('error-box').classList.remove('visible');
+  document.getElementById('loading-wrap').style.display = 'block';
+  runAnalysis();
+}
+
+async function callClaudeAPI(apiKey, rows) {
+  await new Promise(r => setTimeout(r, 2000));
+  const messages = [
+    {
+      role: 'system' in {} ? 'system' : 'user',  
+    }
+  ];
+
+  const systemPrompt = `You are a financial fraud detection AI. Analyse the provided transactions and return ONLY valid JSON with no markdown, no preamble, no explanation outside JSON. Return exactly this structure:
+{"summary":{"total":0,"high_risk":0,"medium_risk":0,"low_risk":0,"total_amount":0,"flagged_amount":0},"transactions":[{"transaction_id":"","risk_level":"HIGH|MEDIUM|LOW","risk_score":0,"flags":[],"explanation":""}],"top_patterns":[],"recommendations":[]}
+
+Risk scoring rules:
+- HIGH (70-100): multiple fraud signals, unusual geography, velocity attacks, large amounts at odd hours, known risky countries/merchants
+- MEDIUM (40-69): single suspicious factor, slightly unusual patterns
+- LOW (0-39): normal transaction patterns
+
+Flag types: velocity, geo_anomaly, amount_spike, merchant_risk, unusual_time, cross_border, duplicate_merchant, card_not_present
+
+CRITICAL: Output ONLY the raw JSON object. No markdown. No backticks. No thinking text. No explanation. Start your response with { and end with }. Nothing before or after.`;
+
+  const userPrompt = `Analyse these ${rows.length} financial transactions for fraud risk:\n\n${JSON.stringify(rows, null, 2)}`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: systemPrompt + '\n\n' + userPrompt }]
+        }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 2000 }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    if (response.status === 400) throw new Error('Invalid API key or bad request. Check your Gemini key.');
+    if (response.status === 429) {
+  const errBody = await response.json().catch(() => ({}));
+  throw new Error('429 detail: ' + JSON.stringify(errBody));
+}
+    throw new Error(`API error ${response.status}: ${err.error?.message || 'Unknown error'}`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  
+  // Strip markdown fences if present
+  const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+  
+  try {
+    return JSON.parse(clean);
+  } catch(e) {
+    // Try to extract JSON from the response
+    const match = clean.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        return JSON.parse(match[0]);
+      } catch(e2) {
+        // Remove trailing commas before } or ] which Gemini sometimes adds
+        const fixed = match[0]
+          .replace(/,\s*}/g, '}')
+          .replace(/,\s*]/g, ']')
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // remove control chars
+          .replace(/,(\s*[}\]])/g, '$1');               // double pass
+        try {
+          return JSON.parse(fixed);
+        } catch(e3) {
+          throw new Error('JSON parse failed: ' + e3.message + ' — Raw: ' + match[0].substring(0, 200));
+        }
+      }
+    }
+    throw new Error('No JSON found in response. Raw: ' + clean.substring(0, 300));
+  }
+}
+
+// ── Loading State ──
+const loadingMsgs = [
+  'Preparing transaction data…',
+  'Sending to Claude AI for analysis…',
+  'Evaluating velocity patterns…',
+  'Checking geographic anomalies…',
+  'Scoring risk for each transaction…',
+  'Generating fraud intelligence report…'
+];
+let loadingInterval;
+function showLoading() {
+  document.getElementById('upload-card').classList.add('hidden');
+  document.getElementById('loading-card').classList.remove('hidden');
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('loading-wrap').style.display = 'block';
+  document.getElementById('error-box').classList.remove('visible');
+  let step = 0;
+  const bar = document.getElementById('progress-bar');
+  const msg = document.getElementById('loading-msg');
+  msg.textContent = loadingMsgs[0];
+  bar.style.width = '5%';
+  loadingInterval = setInterval(() => {
+    step = Math.min(step + 1, loadingMsgs.length - 1);
+    msg.textContent = loadingMsgs[step];
+    bar.style.width = ((step + 1) / loadingMsgs.length * 85) + '%';
+  }, 1800);
+}
+function stopLoading() {
+  clearInterval(loadingInterval);
+  document.getElementById('progress-bar').style.width = '100%';
+}
+function showError(msg) {
+  stopLoading();
+  document.getElementById('loading-wrap').style.display = 'none';
+  const box = document.getElementById('error-box');
+  box.classList.add('visible');
+  document.getElementById('error-text').textContent = msg;
+}
+
+// ── Dashboard ──
+function showDashboard(data, originalRows) {
+  stopLoading();
+  document.getElementById('loading-card').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('dashboard').classList.add('fade-in');
+
+  const s = data.summary;
+  document.getElementById('dash-sub').textContent =
+    `Analysed ${s.total} transactions · Total value ₹${fmt(s.total_amount || 0)}`;
+
+  document.getElementById('m-total').textContent = s.total;
+  document.getElementById('m-high').textContent = s.high_risk;
+  document.getElementById('m-high-pct').textContent = s.total
+    ? `${Math.round(s.high_risk/s.total*100)}% of total` : '';
+  document.getElementById('m-flagged').textContent = '$' + fmt(s.flagged_amount || 0);
+  document.getElementById('m-flagged-pct').textContent = s.total_amount
+    ? `${Math.round((s.flagged_amount||0)/s.total_amount*100)}% of total value` : '';
+
+  const scores = data.transactions.map(t => t.risk_score || 0);
+  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+  document.getElementById('m-avg-score').textContent = avg;
+
+  // Insights
+  const ig = document.getElementById('insight-grid');
+  const patterns = data.top_patterns || [];
+  const recs = data.recommendations || [];
+  ig.innerHTML = `
+    <div class="insight-card">
+      <div class="insight-card-title">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Top Fraud Patterns Detected
+      </div>
+      <ul class="pattern-list">
+        ${patterns.length ? patterns.map(p=>`<li>${p}</li>`).join('') : '<li>No significant patterns detected</li>'}
+      </ul>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-title">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Recommended Actions
+      </div>
+      <ul class="rec-list">
+        ${recs.length ? recs.map(r=>`<li>${r}</li>`).join('') : '<li>No specific actions recommended</li>'}
+      </ul>
+    </div>`;
+
+  // Counts
+  const high = data.transactions.filter(t=>t.risk_level==='HIGH').length;
+  const med  = data.transactions.filter(t=>t.risk_level==='MEDIUM').length;
+  const low  = data.transactions.filter(t=>t.risk_level==='LOW').length;
+  document.getElementById('count-all').textContent  = data.transactions.length;
+  document.getElementById('count-high').textContent = high;
+  document.getElementById('count-medium').textContent = med;
+  document.getElementById('count-low').textContent  = low;
+
+  renderTable(data.transactions, originalRows);
+}
+
+function renderTable(transactions, originalRows) {
+  const tbody = document.getElementById('txn-tbody');
+  const filtered = currentFilter === 'ALL'
+    ? transactions
+    : transactions.filter(t => t.risk_level === currentFilter);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size:.85rem">No transactions at this risk level</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((t, idx) => {
+    const orig = originalRows.find(r =>
+      Object.values(r).some(v => v == t.transaction_id)
+    ) || {};
+    const amount = orig.amount || orig.Amount || '';
+    const merchant = orig.merchant || orig.Merchant || t.transaction_id;
+    const flags = (t.flags || []).map(f =>
+      `<span class="flag-chip">${flagLabel(f)}</span>`
+    ).join('');
+    const scoreColor = t.risk_score >= 70 ? 'var(--high)' : t.risk_score >= 40 ? 'var(--med)' : 'var(--low)';
+
+    return `
+      <tr onclick="toggleRow(this, 'exp-${idx}')" id="row-${idx}">
+        <td><svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></td>
+        <td class="txn-id-cell">${t.transaction_id || '—'}</td>
+        <td class="amount-cell">${amount ? '$'+Number(amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
+        <td style="color:var(--text-secondary);font-size:.8rem">${merchant}</td>
+        <td><span class="risk-badge ${t.risk_level}">${t.risk_level}</span></td>
+        <td>
+          <div class="score-cell">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill" style="width:${t.risk_score}%;background:${scoreColor}"></div>
+            </div>
+            <span class="score-num" style="color:${scoreColor}">${t.risk_score}</span>
+          </div>
+        </td>
+        <td><div class="flags-cell">${flags || '<span style="color:var(--text-muted);font-size:.75rem">none</span>'}</div></td>
+      </tr>
+      <tr class="expand-row hidden" id="exp-${idx}">
+        <td colspan="7">
+          <div class="expand-content">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span><strong>AI Analysis:</strong> ${t.explanation || 'No additional detail provided.'}</span>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function toggleRow(row, expId) {
+  const exp = document.getElementById(expId);
+  const isOpen = !exp.classList.contains('hidden');
+  exp.classList.toggle('hidden', isOpen);
+  row.classList.toggle('expanded', !isOpen);
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
+}
+
+// ── Export ──
+function exportCSV() {
+  if (!analysisResult) return;
+  const headers = ['transaction_id','risk_level','risk_score','flags','explanation'];
+  const rows = analysisResult.transactions.map(t =>
+    [t.transaction_id, t.risk_level, t.risk_score,
+     (t.flags||[]).join('|'), `"${(t.explanation||'').replace(/"/g,"'")}"`].join(',')
+  );
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fraudlens_results.csv';
+  a.click();
+}
+
+// ── Reset ──
+function resetApp() {
+  parsedCSV = { headers: [], rows: [] };
+  analysisResult = null;
+  currentFilter = 'ALL';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('analyse-btn').disabled = true;
+  document.getElementById('csv-file').value = '';
+  document.getElementById('loading-card').classList.add('hidden');
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('upload-card').classList.remove('hidden');
+}
+
+// ── Helpers ──
+function fmt(n) {
+  return Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function flagLabel(f) {
+  const map = {
+    velocity: '⚡ Velocity',
+    geo_anomaly: '🌍 Geo Anomaly',
+    amount_spike: '💰 Amount Spike',
+    merchant_risk: '🏪 Merchant Risk',
+    unusual_time: '🕐 Odd Hours',
+    cross_border: '🌐 Cross-Border',
+    duplicate_merchant: '🔁 Duplicate',
+    card_not_present: '💳 CNP'
+  };
+  return map[f] || f;
+}
+</script>
+</body>
+</html>
