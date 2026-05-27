@@ -2391,6 +2391,7 @@ function goToPage(page) {
   // Scroll table into view smoothly
   document.querySelector('.txn-table-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+  function renderTable(transactions, originalRows) {
   const tbody = document.getElementById('txn-tbody');
 
   // Apply risk level filter
