@@ -870,6 +870,96 @@ tbody tr:hover td { background: var(--off-white); }
   font-weight: 600;
 }
 
+/* ── Customer Risk Profiling (F2) ── */
+.cust-table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 14px;
+  display: none; /* shown via setFilter */
+}
+.cust-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.81rem;
+}
+.cust-table thead th {
+  background: var(--off-white);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.74rem;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.cust-table thead th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.cust-table thead th.sortable:hover { color: var(--accent); }
+.cust-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.cust-table tbody tr:last-child { border-bottom: none; }
+.cust-table tbody tr:hover { background: var(--accent-light); }
+.cust-table tbody tr.cust-active {
+  background: var(--accent-light);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.cust-table td { padding: 10px 14px; vertical-align: middle; }
+.cust-id-cell {
+  font-family: var(--mono);
+  font-size: 0.77rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.cust-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 80px;
+}
+.cust-bar-seg {
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  min-width: 4px;
+}
+.cust-filter-active-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent-light);
+  border: 1px solid #bfd3fd;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.cust-filter-active-banner.visible { display: flex; }
+.cust-clear-btn {
+  margin-left: auto;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid #bfd3fd;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.cust-clear-btn:hover { background: var(--accent); color: white; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .about-grid { grid-template-columns: 1fr !important; }
@@ -1085,9 +1175,38 @@ tbody tr:hover td { background: var(--off-white); }
         <button class="tab-btn" data-filter="LOW" onclick="setFilter('LOW',this)">
           Low <span class="count count-low" id="count-low">0</span>
         </button>
+        <button class="tab-btn" data-filter="CUSTOMER" id="tab-btn-customer" onclick="setFilter('CUSTOMER',this)">
+          By Customer <span class="count" id="count-customer">0</span>
+        </button>
       </div>
     </div>
 
+    <!-- Customer filter active banner -->
+    <div class="cust-filter-active-banner" id="cust-banner">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span id="cust-banner-text">Showing transactions for customer</span>
+      <button class="cust-clear-btn" onclick="clearCustomerFilter()">✕ Clear filter</button>
+    </div>
+
+    <!-- Customer Risk Profile Table (F2) -->
+    <div class="cust-table-wrap" id="cust-table-wrap">
+      <table class="cust-table" id="cust-table">
+        <thead>
+          <tr>
+            <th>Customer ID</th>
+            <th class="sortable" onclick="sortCustomerTable('txn_count',this)">Txns ↕</th>
+            <th class="sortable" onclick="sortCustomerTable('high_count',this)">High Risk ↕</th>
+            <th>Risk Breakdown</th>
+            <th class="sortable" onclick="sortCustomerTable('total_amount',this)">Total Amount ↕</th>
+            <th class="sortable" onclick="sortCustomerTable('max_score',this)">Max Score ↕</th>
+            <th>Risk Level</th>
+          </tr>
+        </thead>
+        <tbody id="cust-tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="txn-table-section">
     <div class="txn-table-wrap">
       <table class="txn-table">
         <thead>
@@ -1108,6 +1227,7 @@ tbody tr:hover td { background: var(--off-white); }
     <button class="btn-reset" onclick="resetApp()">
       ← Analyse Another File
     </button>
+    </div>
   </div>
 
 </div><!-- end tab-analyse -->
@@ -1152,8 +1272,8 @@ tbody tr:hover td { background: var(--off-white); }
           <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Working Prototype</div>
           <div style="font-size:0.76rem;color:var(--text-secondary)">CSV upload, AI risk scoring, dashboard, export, live deployment</div>
         </div>
-        <div style="flex:1;min-width:180px;background:var(--med-bg);border:1px solid var(--med-border);border-radius:var(--radius);padding:14px 16px">
-          <div style="font-size:0.72rem;font-weight:700;color:var(--med);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 2 · Planned</div>
+        <div style="flex:1;min-width:180px;background:var(--low-bg);border:1px solid var(--low-border);border-radius:var(--radius);padding:14px 16px">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--low);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 2 · Live ✓</div>
           <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Customer Risk Profiles</div>
           <div style="font-size:0.76rem;color:var(--text-secondary)">Group by customer ID, identify highest-risk accounts, pattern clustering</div>
         </div>
@@ -1535,6 +1655,168 @@ function renderChart(transactions, originalRows) {
   });
 }
 
+// ── Customer Risk Profiling State (F2) ──
+let customerProfiles = [];
+let customerSortKey = 'max_score';
+let customerSortDir = -1; // -1 = desc, 1 = asc
+let activeCustomerFilter = null;
+
+function buildCustomerProfiles(transactions, originalRows) {
+  const map = {};
+  transactions.forEach(t => {
+    const orig = (originalRows || []).find(r =>
+      Object.values(r).some(v => v == t.transaction_id)
+    ) || {};
+    const cid = orig.customer_id || orig.CustomerID || orig.customer || t.transaction_id;
+    if (!map[cid]) {
+      map[cid] = { customer_id: cid, txns: [], total_amount: 0 };
+    }
+    map[cid].txns.push(t);
+    map[cid].total_amount += parseFloat(orig.amount || orig.Amount || 0) || 0;
+  });
+
+  customerProfiles = Object.values(map).map(c => {
+    const high  = c.txns.filter(t => t.risk_level === 'HIGH').length;
+    const med   = c.txns.filter(t => t.risk_level === 'MEDIUM').length;
+    const low   = c.txns.filter(t => t.risk_level === 'LOW').length;
+    const max_score = Math.max(...c.txns.map(t => t.risk_score || 0));
+    const worst = high > 0 ? 'HIGH' : med > 0 ? 'MEDIUM' : 'LOW';
+    return {
+      customer_id: c.customer_id,
+      txn_count: c.txns.length,
+      high_count: high,
+      med_count: med,
+      low_count: low,
+      total_amount: c.total_amount,
+      max_score,
+      risk_level: worst
+    };
+  });
+
+  // default sort: max_score desc
+  customerProfiles.sort((a, b) => b.max_score - a.max_score);
+
+  // update count badge
+  document.getElementById('count-customer').textContent = customerProfiles.length;
+}
+
+function renderCustomerTable() {
+  const tbody = document.getElementById('cust-tbody');
+  const sym = getCurrencySymbol(getCurrency());
+
+  if (!customerProfiles.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size:.85rem">No customer data available</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = customerProfiles.map(c => {
+    const total = c.txn_count;
+    const hPct  = total ? Math.round(c.high_count / total * 100) : 0;
+    const mPct  = total ? Math.round(c.med_count  / total * 100) : 0;
+    const lPct  = 100 - hPct - mPct;
+    const scoreColor = c.max_score >= 70 ? 'var(--high)' : c.max_score >= 40 ? 'var(--med)' : 'var(--low)';
+    const isActive = activeCustomerFilter === c.customer_id;
+
+    // Stacked mini-bar: proportional segments
+    const barSegs = [
+      { pct: hPct, color: 'var(--high)' },
+      { pct: mPct, color: 'var(--med)' },
+      { pct: lPct, color: 'var(--low-border)' }
+    ].filter(s => s.pct > 0)
+     .map(s => `<div class="cust-bar-seg" style="width:${s.pct}%;background:${s.color}"></div>`)
+     .join('');
+
+    return `
+      <tr onclick="filterByCustomer('${c.customer_id}', this)" ${isActive ? 'class="cust-active"' : ''}>
+        <td class="cust-id-cell">${c.customer_id}</td>
+        <td style="font-family:var(--mono);font-weight:600">${c.txn_count}</td>
+        <td>
+          ${c.high_count > 0
+            ? `<span style="font-family:var(--mono);font-weight:700;color:var(--high)">${c.high_count}</span>`
+            : `<span style="color:var(--text-muted);font-size:.75rem">—</span>`}
+        </td>
+        <td>
+          <div class="cust-bar-wrap" style="background:var(--border);border-radius:3px;overflow:hidden;height:8px">
+            ${barSegs}
+          </div>
+        </td>
+        <td style="font-family:var(--mono);font-weight:600">${sym}${fmt(c.total_amount)}</td>
+        <td>
+          <div class="score-cell">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill" style="width:${c.max_score}%;background:${scoreColor}"></div>
+            </div>
+            <span class="score-num" style="color:${scoreColor}">${c.max_score}</span>
+          </div>
+        </td>
+        <td><span class="risk-badge ${c.risk_level}">${c.risk_level}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+function sortCustomerTable(key, thEl) {
+  if (customerSortKey === key) {
+    customerSortDir *= -1;
+  } else {
+    customerSortKey = key;
+    customerSortDir = -1;
+  }
+  customerProfiles.sort((a, b) => customerSortDir * (b[key] - a[key]));
+  // Update header arrows
+  document.querySelectorAll('.cust-table thead th.sortable').forEach(th => {
+    th.textContent = th.textContent.replace(' ↑','').replace(' ↓','').replace(' ↕','') + ' ↕';
+  });
+  thEl.textContent = thEl.textContent.replace(' ↕','').replace(' ↑','').replace(' ↓','')
+    + (customerSortDir === -1 ? ' ↓' : ' ↑');
+  renderCustomerTable();
+}
+
+function filterByCustomer(customerId, rowEl) {
+  // Toggle: clicking same customer again clears the filter
+  if (activeCustomerFilter === customerId) {
+    clearCustomerFilter();
+    return;
+  }
+  activeCustomerFilter = customerId;
+
+  // Highlight row
+  document.querySelectorAll('#cust-tbody tr').forEach(r => r.classList.remove('cust-active'));
+  rowEl.classList.add('cust-active');
+
+  // Switch to ALL tab and filter transactions to this customer
+  currentFilter = 'ALL';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-filter="ALL"]').classList.add('active');
+
+  // Show transactions tab elements, hide customer table
+  document.getElementById('cust-table-wrap').style.display = 'none';
+  document.getElementById('txn-table-section').style.display = 'block';
+
+  // Show banner
+  const banner = document.getElementById('cust-banner');
+  banner.classList.add('visible');
+  document.getElementById('cust-banner-text').textContent =
+    `Showing ${analysisResult.transactions.filter(t => {
+      const orig = lastTransactions.find(r => Object.values(r).some(v => v == t.transaction_id)) || {};
+      const cid = orig.customer_id || orig.CustomerID || orig.customer || t.transaction_id;
+      return cid === customerId;
+    }).length} transactions for customer: ${customerId}`;
+
+  // Render filtered transactions
+  const filtered = analysisResult.transactions.filter(t => {
+    const orig = lastTransactions.find(r => Object.values(r).some(v => v == t.transaction_id)) || {};
+    const cid = orig.customer_id || orig.CustomerID || orig.customer || t.transaction_id;
+    return cid === customerId;
+  });
+  renderTable(filtered, lastTransactions);
+}
+
+function clearCustomerFilter() {
+  activeCustomerFilter = null;
+  document.getElementById('cust-banner').classList.remove('visible');
+  if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
+}
+
 // ── Loading State ──
 const loadingMsgs = [
   'Preparing transaction data…',
@@ -1636,6 +1918,7 @@ function showDashboard(data, originalRows) {
   document.getElementById('count-low').textContent  = low;
 
   renderChart(data.transactions, originalRows);
+  buildCustomerProfiles(data.transactions, originalRows);
   renderTable(data.transactions, originalRows);
 }
 
@@ -1700,7 +1983,23 @@ function setFilter(filter, btn) {
   currentFilter = filter;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
+
+  const custWrap = document.getElementById('cust-table-wrap');
+  const txnSection = document.getElementById('txn-table-section');
+
+  if (filter === 'CUSTOMER') {
+    // Show customer table, hide transaction table
+    custWrap.style.display = 'block';
+    txnSection.style.display = 'none';
+    document.getElementById('cust-banner').classList.remove('visible');
+    activeCustomerFilter = null;
+    renderCustomerTable();
+  } else {
+    // Show transaction table, hide customer table
+    custWrap.style.display = 'none';
+    txnSection.style.display = 'block';
+    if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
+  }
 }
 
 // ── Export ──
@@ -1724,6 +2023,8 @@ function resetApp() {
   parsedCSV = { headers: [], rows: [] };
   analysisResult = null;
   currentFilter = 'ALL';
+  customerProfiles = [];
+  activeCustomerFilter = null;
   document.getElementById('preview-wrap').style.display = 'none';
   document.getElementById('analyse-btn').disabled = true;
   document.getElementById('analyse-btn-top').disabled = true;
@@ -1731,6 +2032,14 @@ function resetApp() {
   document.getElementById('loading-card').classList.add('hidden');
   document.getElementById('dashboard').classList.add('hidden');
   document.getElementById('upload-card').classList.remove('hidden');
+  document.getElementById('risk-chart-card').classList.add('hidden');
+  document.getElementById('cust-table-wrap').style.display = 'none';
+  document.getElementById('txn-table-section').style.display = 'block';
+  document.getElementById('cust-banner').classList.remove('visible');
+  document.getElementById('count-customer').textContent = '0';
+  // Reset filter tab to ALL
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-filter="ALL"]').classList.add('active');
 }
 
 // ── Helpers ──
