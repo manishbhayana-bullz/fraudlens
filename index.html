@@ -2137,6 +2137,7 @@ function renderTable(transactions, originalRows) {
     const flags = (t.flags || []).map(f =>
       `<span class="flag-chip">${flagLabel(f)}</span>`
     ).join('');
+    t.risk_score = Math.min(Math.max(t.risk_score || 0, 0), 100);
     const scoreColor = t.risk_score >= 70 ? 'var(--high)' : t.risk_score >= 40 ? 'var(--med)' : 'var(--low)';
 
     return `
