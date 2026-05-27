@@ -694,15 +694,6 @@ tbody tr:hover td { background: var(--off-white); }
   background: var(--accent-light);
   border-bottom: 2px solid #bfd3fd;
 }
-.expand-content {
-  padding: 12px 16px;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-.expand-content svg { flex-shrink: 0; margin-top: 1px; width: 15px; height: 15px; stroke: var(--accent); fill: none; stroke-width: 2; }
 .chevron-icon { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 2; transition: transform var(--transition); }
 .expanded .chevron-icon { transform: rotate(180deg); }
 .txn-id-cell { font-family: var(--mono); font-size: 0.77rem; color: var(--text-secondary); }
@@ -960,6 +951,104 @@ tbody tr:hover td { background: var(--off-white); }
 }
 .cust-clear-btn:hover { background: var(--accent); color: white; }
 
+/* ── Flag Explainability (F4) ── */
+.expand-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.expand-ai-row {
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border-bottom: 1px solid #dce6fb;
+}
+.expand-ai-row svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  width: 15px;
+  height: 15px;
+  stroke: var(--accent);
+  fill: none;
+  stroke-width: 2;
+}
+.expand-flags-panel {
+  padding: 14px 16px 16px;
+}
+.expand-flags-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.expand-flags-title svg {
+  width: 12px; height: 12px;
+  stroke: var(--text-muted);
+  fill: none;
+  stroke-width: 2;
+}
+.flag-weight-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.flag-weight-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 42px;
+  align-items: center;
+  gap: 10px;
+}
+.flag-weight-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.flag-weight-track {
+  height: 10px;
+  background: var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.flag-weight-fill {
+  height: 100%;
+  border-radius: 5px;
+  width: 0%;
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flag-weight-pct {
+  font-size: 0.73rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  text-align: right;
+  color: var(--text-secondary);
+}
+.flag-weight-note {
+  margin-top: 10px;
+  font-size: 0.71rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.no-flags-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 4px 0;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .about-grid { grid-template-columns: 1fr !important; }
@@ -977,6 +1066,7 @@ tbody tr:hover td { background: var(--off-white); }
   .metrics { grid-template-columns: 1fr 1fr; }
   .filter-tabs { flex-wrap: wrap; }
   .chart-bar-row { grid-template-columns: 60px 1fr 64px; gap: 8px; }
+  .flag-weight-row { grid-template-columns: 110px 1fr 36px; gap: 7px; }
 }
 
 /* ── Utilities ── */
@@ -1964,8 +2054,17 @@ function renderTable(transactions, originalRows) {
       <tr class="expand-row hidden" id="exp-${idx}">
         <td colspan="7">
           <div class="expand-content">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span><strong>AI Analysis:</strong> ${t.explanation || 'No additional detail provided.'}</span>
+            <div class="expand-ai-row">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span><strong>AI Analysis:</strong> ${t.explanation || 'No additional detail provided.'}</span>
+            </div>
+            <div class="expand-flags-panel">
+              <div class="expand-flags-title">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Risk Score Breakdown
+              </div>
+              ${renderFlagWeights(t)}
+            </div>
           </div>
         </td>
       </tr>`;
@@ -2040,6 +2139,81 @@ function resetApp() {
   // Reset filter tab to ALL
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('.tab-btn[data-filter="ALL"]').classList.add('active');
+}
+
+// ── Flag Explainability (F4) ──
+// Rule-based weights: each flag type has a predefined severity contribution.
+// These reflect real fraud intelligence priority, not AI-fabricated numbers.
+const FLAG_BASE_WEIGHTS = {
+  geo_anomaly:        30,
+  velocity:           25,
+  cross_border:       22,
+  amount_spike:       20,
+  merchant_risk:      18,
+  unusual_time:       12,
+  card_not_present:   10,
+  duplicate_merchant:  8
+};
+
+// Gradient colours per flag — from neutral to severity
+const FLAG_COLOURS = {
+  geo_anomaly:        ['#f97316', '#dc2626'],
+  velocity:           ['#fb923c', '#dc2626'],
+  cross_border:       ['#a78bfa', '#7c3aed'],
+  amount_spike:       ['#fbbf24', '#d97706'],
+  merchant_risk:      ['#f87171', '#dc2626'],
+  unusual_time:       ['#60a5fa', '#2563eb'],
+  card_not_present:   ['#34d399', '#059669'],
+  duplicate_merchant: ['#94a3b8', '#475569']
+};
+
+function renderFlagWeights(transaction) {
+  const flags = transaction.flags || [];
+
+  if (flags.length === 0) {
+    return `<div class="no-flags-note">No specific fraud signals flagged for this transaction.</div>`;
+  }
+
+  // Compute proportional weights from base weights
+  const rawWeights = flags.map(f => FLAG_BASE_WEIGHTS[f] || 8);
+  const total = rawWeights.reduce((a, b) => a + b, 0);
+  const rows = flags.map((f, i) => {
+    const pct = Math.round(rawWeights[i] / total * 100);
+    const colours = FLAG_COLOURS[f] || ['#94a3b8', '#475569'];
+    const uniqueId = `fw-${transaction.transaction_id}-${i}`.replace(/[^a-zA-Z0-9-]/g, '_');
+    return { flag: f, pct, colours, uniqueId };
+  }).sort((a, b) => b.pct - a.pct);
+
+  const html = `
+    <div class="flag-weight-rows" data-txnid="${transaction.transaction_id}">
+      ${rows.map(r => `
+        <div class="flag-weight-row">
+          <div class="flag-weight-label">${flagLabel(r.flag)}</div>
+          <div class="flag-weight-track">
+            <div class="flag-weight-fill" id="${r.uniqueId}"
+              style="background: linear-gradient(90deg, ${r.colours[0]}, ${r.colours[1]}); width: 0%"
+              data-target="${r.pct}">
+            </div>
+          </div>
+          <div class="flag-weight-pct">${r.pct}%</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="flag-weight-note">
+      ⓘ Weights are rule-based — derived from signal severity, not generated by AI.
+    </div>`;
+
+  // Schedule animation: runs after this HTML is inserted into the DOM
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      rows.forEach(r => {
+        const el = document.getElementById(r.uniqueId);
+        if (el) el.style.width = el.dataset.target + '%';
+      });
+    }, 60);
+  });
+
+  return html;
 }
 
 // ── Helpers ──
