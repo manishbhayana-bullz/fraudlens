@@ -1049,6 +1049,85 @@ tbody tr:hover td { background: var(--off-white); }
   padding: 4px 0;
 }
 
+/* ── Analysis History (F3) ── */
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.history-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.btn-clear-history {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--high);
+  background: var(--high-bg);
+  border: 1px solid var(--high-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-clear-history:hover { background: var(--high); color: white; }
+.btn-demo-history {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid #bfd3fd;
+  border-radius: var(--radius-sm);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-demo-history:hover { background: var(--accent); color: white; }
+.history-cards { display: flex; flex-direction: column; gap: 12px; }
+.history-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+.history-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.history-card.demo-card { border-style: dashed; border-color: var(--border-mid); background: var(--off-white); }
+.history-card-left { display: flex; flex-direction: column; gap: 6px; }
+.history-card-filename {
+  font-size: 0.88rem; font-weight: 700; color: var(--text-primary);
+  display: flex; align-items: center; gap: 7px;
+}
+.history-card-filename svg { width: 14px; height: 14px; stroke: var(--accent); fill: none; stroke-width: 2; flex-shrink: 0; }
+.history-card-meta { font-size: 0.76rem; color: var(--text-muted); }
+.history-card-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+.history-stat { display: flex; flex-direction: column; gap: 1px; align-items: flex-end; }
+.history-stat-value { font-size: 1.1rem; font-weight: 700; font-family: var(--mono); line-height: 1; color: var(--text-primary); }
+.history-stat-value.danger { color: var(--high); }
+.history-stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
+.history-load-hint { font-size: 0.72rem; color: var(--accent); font-weight: 600; white-space: nowrap; align-self: center; }
+.history-empty { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+.history-empty-icon { font-size: 2rem; margin-bottom: 12px; }
+.history-empty-title { font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+.history-empty-sub { font-size: 0.82rem; line-height: 1.6; }
+.history-demo-note {
+  margin-top: 16px; font-size: 0.76rem; color: var(--text-muted);
+  background: var(--off-white); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 14px; line-height: 1.6;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .about-grid { grid-template-columns: 1fr !important; }
@@ -1087,6 +1166,7 @@ tbody tr:hover td { background: var(--off-white); }
   </div>
   <nav class="header-nav">
     <button class="nav-tab active" onclick="showTab('analyse')">Analyse</button>
+    <button class="nav-tab" onclick="showTab('history')">History</button>
     <button class="nav-tab" onclick="showTab('about')">About</button>
   </nav>
   <span class="header-badge">Beta</span>
@@ -1322,6 +1402,28 @@ tbody tr:hover td { background: var(--off-white); }
 
 </div><!-- end tab-analyse -->
 
+<div id="tab-history" class="hidden">
+  <div class="card" style="margin-top:8px">
+    <div class="history-header">
+      <div>
+        <div class="history-title">Analysis History</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px">Last 3 analyses · stored in this browser</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn-demo-history" onclick="loadDemoHistory()">Load demo data</button>
+        <button class="btn-clear-history" onclick="clearHistory()">Clear history</button>
+      </div>
+    </div>
+    <div id="history-cards-wrap" class="history-cards">
+      <!-- Populated by renderHistory() -->
+    </div>
+    <div class="history-demo-note">
+      ⓘ History is saved in your browser's localStorage and is private to this device.
+      Use <strong>Load demo data</strong> to preview this feature on a fresh browser.
+    </div>
+  </div>
+</div>
+
 <div id="tab-about" class="hidden">
   <!-- ABOUT SECTION -->
   <div class="card" id="about-section" style="margin-top:8px">
@@ -1367,10 +1469,10 @@ tbody tr:hover td { background: var(--off-white); }
           <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Customer Risk Profiles</div>
           <div style="font-size:0.76rem;color:var(--text-secondary)">Group by customer ID, identify highest-risk accounts, pattern clustering</div>
         </div>
-        <div style="flex:1;min-width:180px;background:var(--accent-light);border:1px solid #bfd3fd;border-radius:var(--radius);padding:14px 16px">
-          <div style="font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 3 · Planned</div>
-          <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Risk Trend Charts</div>
-          <div style="font-size:0.76rem;color:var(--text-secondary)">Visual analytics, risk distribution charts, time-series fraud patterns</div>
+        <div style="flex:1;min-width:180px;background:var(--low-bg);border:1px solid var(--low-border);border-radius:var(--radius);padding:14px 16px">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--low);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 3 · Live ✓</div>
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px">Analysis History</div>
+          <div style="font-size:0.76rem;color:var(--text-secondary)">Last 3 analyses saved locally — filename, date, stats, one-click reload</div>
         </div>
         <div style="flex:1;min-width:180px;background:var(--off-white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px">
           <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Phase 4 · Planned</div>
@@ -1454,9 +1556,11 @@ initCurrency();
 
 function showTab(tab) {
   document.getElementById('tab-analyse').classList.toggle('hidden', tab !== 'analyse');
+  document.getElementById('tab-history').classList.toggle('hidden', tab !== 'history');
   document.getElementById('tab-about').classList.toggle('hidden', tab !== 'about');
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`.nav-tab[onclick="showTab('${tab}')"]`).classList.add('active');
+  if (tab === 'history') renderHistory();
   window.scrollTo(0, 0);
 }
 
@@ -1560,6 +1664,7 @@ async function runAnalysis() {
     const result = await callClaudeAPI(key, rows);
     analysisResult = result;
     lastTransactions = rows;
+    saveToHistory(result, rows, parsedCSV.filename || document.getElementById('file-chip').textContent);
     console.log('Calling showDashboard with:', result.summary);
     showDashboard(result, rows);
   } catch(err) {
@@ -2214,6 +2319,162 @@ function renderFlagWeights(transaction) {
   });
 
   return html;
+}
+
+// ── Analysis History (F3) ──
+const HISTORY_KEY = 'fl_history';
+const HISTORY_MAX = 3;
+
+function saveToHistory(result, originalRows, filename) {
+  const s = result.summary;
+  const entry = {
+    id: Date.now(),
+    filename: filename || 'transactions.csv',
+    datetime: new Date().toISOString(),
+    total: s.total,
+    high_risk: s.high_risk,
+    medium_risk: s.medium_risk || 0,
+    low_risk: s.low_risk || 0,
+    total_amount: s.total_amount || 0,
+    flagged_amount: s.flagged_amount || 0,
+    result: result,
+    isDemo: false
+  };
+  let history = getHistory();
+  // Prepend newest, keep max 3
+  history = [entry, ...history].slice(0, HISTORY_MAX);
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch(e) {
+    console.warn('History save failed (storage full?):', e);
+  }
+}
+
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  } catch(e) { return []; }
+}
+
+function clearHistory() {
+  if (!confirm('Clear all analysis history from this browser?')) return;
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+
+function loadDemoHistory() {
+  const sym = getCurrencySymbol(getCurrency());
+  const demo = [
+    {
+      id: 1,
+      filename: 'march_transactions_2026.csv',
+      datetime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      total: 847, high_risk: 23, medium_risk: 104, low_risk: 720,
+      total_amount: 1284650, flagged_amount: 312400,
+      result: null, isDemo: true
+    },
+    {
+      id: 2,
+      filename: 'feb_ecom_batch.csv',
+      datetime: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+      total: 412, high_risk: 8, medium_risk: 51, low_risk: 353,
+      total_amount: 538200, flagged_amount: 89750,
+      result: null, isDemo: true
+    },
+    {
+      id: 3,
+      filename: 'jan_audit_sample.csv',
+      datetime: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+      total: 200, high_risk: 34, medium_risk: 62, low_risk: 104,
+      total_amount: 298500, flagged_amount: 127800,
+      result: null, isDemo: true
+    }
+  ];
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(demo));
+  renderHistory();
+}
+
+function loadHistoryEntry(entry) {
+  if (entry.isDemo || !entry.result) {
+    alert('This is a demo history entry — no real analysis data to reload.\nRun an actual analysis first, then your results will appear here.');
+    return;
+  }
+  // Switch to analyse tab and restore the result
+  showTab('analyse');
+  analysisResult = entry.result;
+  // Rebuild a minimal originalRows from result transactions (no CSV columns beyond txn id)
+  lastTransactions = entry.result.transactions.map(t => ({ transaction_id: t.transaction_id }));
+  currentFilter = 'ALL';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-filter="ALL"]').classList.add('active');
+  document.getElementById('upload-card').classList.add('hidden');
+  document.getElementById('loading-card').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('dashboard').style.display = 'block';
+  showDashboard(entry.result, lastTransactions);
+}
+
+function formatHistoryDate(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffDays = Math.floor((now - d) / 86400000);
+  if (diffDays === 0) return 'Today · ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (diffDays === 1) return 'Yesterday · ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return d.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function renderHistory() {
+  const wrap = document.getElementById('history-cards-wrap');
+  const history = getHistory();
+  const sym = getCurrencySymbol(getCurrency());
+
+  if (!history.length) {
+    wrap.innerHTML = `
+      <div class="history-empty">
+        <div class="history-empty-icon">📂</div>
+        <div class="history-empty-title">No history yet</div>
+        <div class="history-empty-sub">
+          Run an analysis and it will appear here automatically.<br>
+          Or click <strong>Load demo data</strong> to preview what history looks like.
+        </div>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = history.map((entry, i) => {
+    const highPct = entry.total ? Math.round(entry.high_risk / entry.total * 100) : 0;
+    const demoLabel = entry.isDemo ? ' <span style="font-size:0.68rem;font-weight:600;color:var(--text-muted);background:var(--border);padding:1px 6px;border-radius:10px;margin-left:4px">DEMO</span>' : '';
+    return `
+      <div class="history-card ${entry.isDemo ? 'demo-card' : ''}" onclick="loadHistoryEntry(${JSON.stringify(entry).replace(/"/g, '&quot;')})">
+        <div class="history-card-left">
+          <div class="history-card-filename">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            ${entry.filename}${demoLabel}
+          </div>
+          <div class="history-card-meta">${formatHistoryDate(entry.datetime)} · ${entry.total} transactions</div>
+        </div>
+        <div class="history-card-stats">
+          <div class="history-stat">
+            <span class="history-stat-value">${entry.total}</span>
+            <span class="history-stat-label">Total</span>
+          </div>
+          <div class="history-stat">
+            <span class="history-stat-value danger">${entry.high_risk}</span>
+            <span class="history-stat-label">High risk</span>
+          </div>
+          <div class="history-stat">
+            <span class="history-stat-value">${highPct}%</span>
+            <span class="history-stat-label">Flag rate</span>
+          </div>
+          <div class="history-stat">
+            <span class="history-stat-value">${sym}${fmt(entry.flagged_amount)}</span>
+            <span class="history-stat-label">Flagged amt</span>
+          </div>
+          <div class="history-load-hint">${entry.isDemo ? 'Demo ›' : 'Reload ›'}</div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // ── Helpers ──
