@@ -725,6 +725,151 @@ tbody tr:hover td { background: var(--off-white); }
 }
 .btn-reset:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ── Risk Distribution Chart ── */
+.risk-chart-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px 28px 20px;
+  margin-bottom: 24px;
+}
+.risk-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.risk-chart-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.risk-chart-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.chart-bars-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chart-bar-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 80px;
+  align-items: center;
+  gap: 14px;
+}
+.chart-bar-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-bar-label .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.chart-bar-track {
+  height: 28px;
+  background: var(--off-white);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border);
+}
+.chart-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  width: 0%;
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  min-width: 0;
+}
+.chart-bar-fill.high  { background: linear-gradient(90deg, #f87171 0%, var(--high) 100%); }
+.chart-bar-fill.med   { background: linear-gradient(90deg, #fbbf24 0%, var(--med) 100%); }
+.chart-bar-fill.low   { background: linear-gradient(90deg, #4ade80 0%, var(--low) 100%); }
+.chart-bar-inner-pct {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+  font-family: var(--mono);
+  opacity: 0;
+  transition: opacity 0.3s ease 0.6s;
+  white-space: nowrap;
+}
+.chart-bar-fill.animate .chart-bar-inner-pct { opacity: 1; }
+.chart-bar-stats {
+  text-align: right;
+}
+.chart-bar-count {
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text-primary);
+  line-height: 1;
+}
+.chart-bar-pct {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.chart-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16px 0 14px;
+}
+.chart-summary-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.chart-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.chart-summary-value {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text-primary);
+}
+.chart-summary-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .about-grid { grid-template-columns: 1fr !important; }
@@ -741,6 +886,7 @@ tbody tr:hover td { background: var(--off-white); }
 @media (max-width: 480px) {
   .metrics { grid-template-columns: 1fr 1fr; }
   .filter-tabs { flex-wrap: wrap; }
+  .chart-bar-row { grid-template-columns: 60px 1fr 64px; gap: 8px; }
 }
 
 /* ── Utilities ── */
@@ -904,6 +1050,25 @@ tbody tr:hover td { background: var(--off-white); }
 
     <!-- Insights -->
     <div class="insight-grid" id="insight-grid"></div>
+
+    <!-- Risk Distribution Chart (F1) -->
+    <div class="risk-chart-card hidden" id="risk-chart-card">
+      <div class="risk-chart-header">
+        <div class="risk-chart-title">Risk Distribution</div>
+        <div class="risk-chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--high)"></span>High Risk</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--med)"></span>Medium Risk</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--low)"></span>Low Risk</span>
+        </div>
+      </div>
+      <div class="chart-bars-wrap" id="chart-bars-wrap">
+        <!-- Populated by renderChart() -->
+      </div>
+      <hr class="chart-divider"/>
+      <div class="chart-summary-row" id="chart-summary-row">
+        <!-- Populated by renderChart() -->
+      </div>
+    </div>
 
     <!-- Transactions -->
     <div class="filter-bar">
@@ -1279,6 +1444,97 @@ console.log('Cleaned response:', clean.substring(0, 300));
   }
 }
 
+// ── Risk Distribution Chart (F1) ──
+function renderChart(transactions, originalRows) {
+  const total = transactions.length;
+  if (total === 0) return;
+  document.getElementById('risk-chart-card').classList.remove('hidden');
+
+  const high = transactions.filter(t => t.risk_level === 'HIGH').length;
+  const med  = transactions.filter(t => t.risk_level === 'MEDIUM').length;
+  const low  = transactions.filter(t => t.risk_level === 'LOW').length;
+
+  const highAmt = transactions
+    .filter(t => t.risk_level === 'HIGH')
+    .reduce((sum, t) => {
+      const row = (originalRows || []).find(r =>
+        Object.values(r).some(v => v == t.transaction_id)
+      ) || {};
+      return sum + (parseFloat(row.amount || row.Amount || 0) || 0);
+    }, 0);
+
+  const pct = n => total ? Math.round(n / total * 100) : 0;
+
+  const bars = [
+    { key: 'high', label: 'High',   color: 'var(--high)', count: high, cls: 'high' },
+    { key: 'med',  label: 'Medium', color: 'var(--med)',  count: med,  cls: 'med'  },
+    { key: 'low',  label: 'Low',    color: 'var(--low)',  count: low,  cls: 'low'  }
+  ];
+
+  const wrap = document.getElementById('chart-bars-wrap');
+  wrap.innerHTML = bars.map(b => {
+    const p = pct(b.count);
+    // Minimum visual width so the bar is always visible when count > 0
+    const visWidth = b.count > 0 ? Math.max(p, 4) : 0;
+    return `
+      <div class="chart-bar-row">
+        <div class="chart-bar-label" style="color:${b.color}">
+          <span class="dot" style="background:${b.color}"></span>${b.label}
+        </div>
+        <div class="chart-bar-track">
+          <div class="chart-bar-fill ${b.cls}" id="bar-fill-${b.key}" style="width:0%" data-target="${visWidth}">
+            <span class="chart-bar-inner-pct">${p > 10 ? p + '%' : ''}</span>
+          </div>
+        </div>
+        <div class="chart-bar-stats">
+          <div class="chart-bar-count">${b.count}</div>
+          <div class="chart-bar-pct">${p}%</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Summary row
+  const avgScore = transactions.length
+    ? Math.round(transactions.reduce((s, t) => s + (t.risk_score || 0), 0) / transactions.length)
+    : 0;
+  const flaggedCount = transactions.filter(t => t.risk_level === 'HIGH' || t.risk_level === 'MEDIUM').length;
+
+  document.getElementById('chart-summary-row').innerHTML = `
+    <div class="chart-summary-item">
+      <span class="chart-summary-value">${total}</span>
+      <span class="chart-summary-label">Total analysed</span>
+    </div>
+    <div class="chart-summary-item">
+      <span class="chart-summary-value" style="color:var(--high)">${high}</span>
+      <span class="chart-summary-label">High risk</span>
+    </div>
+    <div class="chart-summary-item">
+      <span class="chart-summary-value">${avgScore}</span>
+      <span class="chart-summary-label">Avg score</span>
+    </div>
+    <div class="chart-summary-item">
+      <span class="chart-summary-value">${getCurrencySymbol(getCurrency())}${fmt(highAmt)}</span>
+      <span class="chart-summary-label">High-risk exposure</span>
+    </div>
+    <div class="chart-summary-item">
+      <span class="chart-summary-value">${total ? pct(flaggedCount) : 0}%</span>
+      <span class="chart-summary-label">Flagged rate</span>
+    </div>`;
+
+  // Animate bars after a short paint delay
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      bars.forEach(b => {
+        const el = document.getElementById('bar-fill-' + b.key);
+        if (!el) return;
+        const target = el.dataset.target;
+        el.style.width = target + '%';
+        el.classList.add('animate');
+      });
+    }, 120);
+  });
+}
+
 // ── Loading State ──
 const loadingMsgs = [
   'Preparing transaction data…',
@@ -1379,6 +1635,7 @@ function showDashboard(data, originalRows) {
   document.getElementById('count-medium').textContent = med;
   document.getElementById('count-low').textContent  = low;
 
+  renderChart(data.transactions, originalRows);
   renderTable(data.transactions, originalRows);
 }
 
