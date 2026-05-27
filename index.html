@@ -1781,13 +1781,6 @@ async function runAnalysis() {
     saveToHistory(result, rows, parsedCSV.filename || document.getElementById('file-chip').textContent);
     console.log('Calling showDashboard with:', result.summary);
     showDashboard(result, rows);
-  } try {
-    const result = await callClaudeAPI(key, rows);
-    analysisResult = result;
-    lastTransactions = rows;
-    saveToHistory(result, rows, parsedCSV.filename || document.getElementById('file-chip').textContent);
-    console.log('Calling showDashboard with:', result.summary);
-    showDashboard(result, rows);
   } catch(err) {
     stopLoading();
     document.getElementById('loading-card').classList.add('hidden');
@@ -1799,6 +1792,7 @@ async function runAnalysis() {
     }
     console.error('Full error:', err);
   }
+}
 
 function retryAnalysis() {
   document.getElementById('error-box').classList.remove('visible');
@@ -2174,6 +2168,7 @@ function stopLoading() {
 }
 function showError(msg) {
   stopLoading();
+  document.getElementById('upload-card').classList.remove('hidden');
   document.getElementById('loading-card').classList.remove('hidden');
   document.getElementById('loading-wrap').style.display = 'none';
   const box = document.getElementById('error-box');
