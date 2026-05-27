@@ -699,6 +699,55 @@ tbody tr:hover td { background: var(--off-white); }
 .txn-id-cell { font-family: var(--mono); font-size: 0.77rem; color: var(--text-secondary); }
 .amount-cell { font-family: var(--mono); font-weight: 600; }
 
+/* ── Pagination ── */
+.pagination-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--off-white);
+  border-radius: 0 0 var(--radius) var(--radius);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pagination-info {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.pagination-btns {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.page-btn {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font);
+}
+.page-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.page-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 /* ── Reset Button ── */
 .btn-reset {
   display: inline-flex;
@@ -1128,6 +1177,60 @@ tbody tr:hover td { background: var(--off-white); }
   border-radius: var(--radius-sm); padding: 10px 14px; line-height: 1.6;
 }
 
+/* ── Search Input ── */
+.search-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.search-input {
+  padding: 5px 12px 5px 32px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-family: var(--font);
+  color: var(--text-primary);
+  background: var(--white);
+  width: 200px;
+  transition: all var(--transition);
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,.1);
+  width: 240px;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px; height: 13px;
+  stroke: var(--text-muted);
+  fill: none;
+  stroke-width: 2;
+  pointer-events: none;
+}
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  transition: background var(--transition);
+}
+.search-clear:hover { background: var(--text-secondary); }
+.search-clear svg { width: 8px; height: 8px; stroke: white; fill: none; stroke-width: 3; }
+.search-clear.visible { display: flex; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .about-grid { grid-template-columns: 1fr !important; }
@@ -1349,6 +1452,14 @@ tbody tr:hover td { background: var(--off-white); }
           By Customer <span class="count" id="count-customer">0</span>
         </button>
       </div>
+      <div class="search-wrap" id="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="txn-search" type="text" placeholder="Search ID or merchant…"
+          oninput="handleSearch(this.value)" autocomplete="off" spellcheck="false"/>
+        <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Clear search">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
     </div>
 
     <!-- Customer filter active banner -->
@@ -1516,6 +1627,9 @@ let parsedCSV = { headers: [], rows: [] };
 let analysisResult = null;
 let currentFilter = 'ALL';
 let lastTransactions = [];
+let searchQuery = '';
+let currentPage = 1;
+const PAGE_SIZE = 10;
 
 // ── API Key ──
 function saveCurrency() {
@@ -1667,11 +1781,24 @@ async function runAnalysis() {
     saveToHistory(result, rows, parsedCSV.filename || document.getElementById('file-chip').textContent);
     console.log('Calling showDashboard with:', result.summary);
     showDashboard(result, rows);
+  } try {
+    const result = await callClaudeAPI(key, rows);
+    analysisResult = result;
+    lastTransactions = rows;
+    saveToHistory(result, rows, parsedCSV.filename || document.getElementById('file-chip').textContent);
+    console.log('Calling showDashboard with:', result.summary);
+    showDashboard(result, rows);
   } catch(err) {
-    showError(err.message || 'Unknown error — check browser console for details.');
+    stopLoading();
+    document.getElementById('loading-card').classList.add('hidden');
+    document.getElementById('upload-card').classList.remove('hidden');
+    const errBanner = document.getElementById('error-banner');
+    if (errBanner) {
+      errBanner.textContent = '⚠ Analysis failed: ' + err.message;
+      errBanner.style.display = 'block';
+    }
     console.error('Full error:', err);
   }
-}
 
 function retryAnalysis() {
   document.getElementById('error-box').classList.remove('visible');
@@ -1760,7 +1887,7 @@ console.log('Cleaned response:', clean.substring(0, 300));
 }
 
 // ── Risk Distribution Chart (F1) ──
-function renderChart(transactions, originalRows) {
+function renderChart(transactions, originalRows, computedFlagged, computedTotal) {
   const total = transactions.length;
   if (total === 0) return;
   document.getElementById('risk-chart-card').classList.remove('hidden');
@@ -1769,14 +1896,17 @@ function renderChart(transactions, originalRows) {
   const med  = transactions.filter(t => t.risk_level === 'MEDIUM').length;
   const low  = transactions.filter(t => t.risk_level === 'LOW').length;
 
-  const highAmt = transactions
-    .filter(t => t.risk_level === 'HIGH')
-    .reduce((sum, t) => {
-      const row = (originalRows || []).find(r =>
-        Object.values(r).some(v => v == t.transaction_id)
-      ) || {};
-      return sum + (parseFloat(row.amount || row.Amount || 0) || 0);
-    }, 0);
+  // Use precomputed flagged amount if provided (ensures chart matches metric card)
+  const flaggedAmt = (computedFlagged !== undefined)
+    ? computedFlagged
+    : transactions
+        .filter(t => t.risk_level === 'HIGH' || t.risk_level === 'MEDIUM')
+        .reduce((sum, t) => {
+          const row = (originalRows || []).find(r =>
+            Object.values(r).some(v => v == t.transaction_id)
+          ) || {};
+          return sum + (parseFloat(row.amount || row.Amount || 0) || 0);
+        }, 0);
 
   const pct = n => total ? Math.round(n / total * 100) : 0;
 
@@ -1789,7 +1919,6 @@ function renderChart(transactions, originalRows) {
   const wrap = document.getElementById('chart-bars-wrap');
   wrap.innerHTML = bars.map(b => {
     const p = pct(b.count);
-    // Minimum visual width so the bar is always visible when count > 0
     const visWidth = b.count > 0 ? Math.max(p, 4) : 0;
     return `
       <div class="chart-bar-row">
@@ -1808,9 +1937,9 @@ function renderChart(transactions, originalRows) {
       </div>`;
   }).join('');
 
-  // Summary row
+  // Summary row — uses same flaggedAmt as metric card
   const avgScore = transactions.length
-    ? Math.round(transactions.reduce((s, t) => s + (t.risk_score || 0), 0) / transactions.length)
+    ? Math.round(transactions.reduce((s, t) => s + Math.min(t.risk_score || 0, 100), 0) / transactions.length)
     : 0;
   const flaggedCount = transactions.filter(t => t.risk_level === 'HIGH' || t.risk_level === 'MEDIUM').length;
 
@@ -1828,8 +1957,8 @@ function renderChart(transactions, originalRows) {
       <span class="chart-summary-label">Avg score</span>
     </div>
     <div class="chart-summary-item">
-      <span class="chart-summary-value">${getCurrencySymbol(getCurrency())}${fmt(highAmt)}</span>
-      <span class="chart-summary-label">High-risk exposure</span>
+      <span class="chart-summary-value">${getCurrencySymbol(getCurrency())}${fmt(flaggedAmt)}</span>
+      <span class="chart-summary-label">Flagged exposure</span>
     </div>
     <div class="chart-summary-item">
       <span class="chart-summary-value">${total ? pct(flaggedCount) : 0}%</span>
@@ -2064,18 +2193,33 @@ function showDashboard(data, originalRows) {
   document.getElementById('dashboard').classList.add('fade-in');
 
   const s = data.summary;
+
+  // ── Compute flagged amount client-side from actual transaction data ──
+  // This ensures the metric card and chart summary always show the same number.
+  // Gemini's flagged_amount can be inconsistent; we own this calculation.
+  const computedFlagged = data.transactions
+    .filter(t => t.risk_level === 'HIGH' || t.risk_level === 'MEDIUM')
+    .reduce((sum, t) => {
+      const orig = (originalRows || []).find(r =>
+        Object.values(r).some(v => v == t.transaction_id)
+      ) || {};
+      return sum + (parseFloat(orig.amount || orig.Amount || 0) || 0);
+    }, 0);
+  const computedTotal = (originalRows || [])
+    .reduce((sum, r) => sum + (parseFloat(r.amount || r.Amount || 0) || 0), 0);
+
   document.getElementById('dash-sub').textContent =
-    `Analysed ${s.total} transactions · Total value ${getCurrencySymbol(getCurrency())}${fmt(s.total_amount || 0)}`;
+    `Analysed ${s.total} transactions · Total value ${getCurrencySymbol(getCurrency())}${fmt(computedTotal || s.total_amount || 0)}`;
 
   document.getElementById('m-total').textContent = s.total;
   document.getElementById('m-high').textContent = s.high_risk;
   document.getElementById('m-high-pct').textContent = s.total
     ? `${Math.round(s.high_risk/s.total*100)}% of total` : '';
-  document.getElementById('m-flagged').textContent = getCurrencySymbol(getCurrency()) + fmt(s.flagged_amount || 0);
-  document.getElementById('m-flagged-pct').textContent = s.total_amount
-    ? `${Math.round((s.flagged_amount||0)/s.total_amount*100)}% of total value` : '';
+  document.getElementById('m-flagged').textContent = getCurrencySymbol(getCurrency()) + fmt(computedFlagged);
+  document.getElementById('m-flagged-pct').textContent = computedTotal
+    ? `${Math.round(computedFlagged/computedTotal*100)}% of total value` : '';
 
-  const scores = data.transactions.map(t => t.risk_score || 0);
+  const scores = data.transactions.map(t => Math.min(t.risk_score || 0, 100));
   const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
   document.getElementById('m-avg-score').textContent = avg;
 
@@ -2112,19 +2256,171 @@ function showDashboard(data, originalRows) {
   document.getElementById('count-medium').textContent = med;
   document.getElementById('count-low').textContent  = low;
 
-  renderChart(data.transactions, originalRows);
+  renderChart(data.transactions, originalRows, computedFlagged, computedTotal);
   buildCustomerProfiles(data.transactions, originalRows);
   renderTable(data.transactions, originalRows);
 }
 
 function renderTable(transactions, originalRows) {
   const tbody = document.getElementById('txn-tbody');
-  const filtered = currentFilter === 'ALL'
+
+  // Apply risk level filter
+  let filtered = currentFilter === 'ALL'
     ? transactions
     : transactions.filter(t => t.risk_level === currentFilter);
 
+  // Apply search
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(t => {
+      const orig = (originalRows || []).find(r =>
+        Object.values(r).some(v => v == t.transaction_id)
+      ) || {};
+      const merchant = (orig.merchant || orig.Merchant || '').toLowerCase();
+      const txnId = (t.transaction_id || '').toLowerCase();
+      return txnId.includes(q) || merchant.includes(q);
+    });
+  }
+
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size:.85rem">No transactions at this risk level</td></tr>`;
+    const msg = searchQuery
+      ? `No transactions match "<strong>${searchQuery}</strong>"`
+      : 'No transactions at this risk level';
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;
+      color:var(--text-muted);font-size:.85rem">${msg}</td></tr>`;
+    renderPagination(0, 0);
+    return;
+  }
+
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = 1;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filtered.slice(start, start + PAGE_SIZE);
+
+  const sym = getCurrencySymbol(getCurrency());
+
+  tbody.innerHTML = pageRows.map((t, idx) => {
+    const globalIdx = start + idx;
+    t.risk_score = Math.min(Math.max(t.risk_score || 0, 0), 100);
+    const orig = (originalRows || []).find(r =>
+      Object.values(r).some(v => v == t.transaction_id)
+    ) || {};
+    const amount  = parseFloat(orig.amount || orig.Amount || 0) || 0;
+    const merchant = orig.merchant || orig.Merchant || orig.merchant_name || orig.MerchantName || '—';
+    const scoreColor = t.risk_score >= 70 ? 'var(--high)' : t.risk_score >= 40 ? 'var(--med)' : 'var(--low)';
+    const flagsHtml = (t.flags && t.flags.length)
+      ? t.flags.map(f => `<span class="flag-tag">${flagLabel(f)}</span>`).join('')
+      : '<span style="color:var(--text-muted);font-size:.75rem">none</span>';
+
+    return `
+      <tr class="txn-row" onclick="toggleExpand(${globalIdx}, this)">
+        <td><svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></td>
+        <td class="txn-id-cell">${t.transaction_id}</td>
+        <td class="amount-cell">${sym}${fmt(amount)}</td>
+        <td>${merchant}</td>
+        <td><span class="risk-badge ${t.risk_level}">${t.risk_level}</span></td>
+        <td>
+          <div class="score-cell">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill" style="width:${t.risk_score}%;background:${scoreColor}"></div>
+            </div>
+            <span class="score-num" style="color:${scoreColor}">${t.risk_score}</span>
+          </div>
+        </td>
+        <td class="flags-cell">${flagsHtml}</td>
+      </tr>
+      <tr class="expand-row hidden" id="exp-${globalIdx}">
+        <td colspan="7">
+          <div class="expand-content">
+            <div class="expand-ai-row">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span><strong>AI Analysis:</strong> ${t.explanation || 'No additional detail provided.'}</span>
+            </div>
+            <div class="expand-flags-panel">
+              <div class="expand-flags-title">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Risk Score Breakdown
+              </div>
+              ${renderFlagWeights(t)}
+            </div>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  renderPagination(filtered.length, totalPages);
+}
+
+function renderPagination(total, totalPages) {
+  // Remove old pagination if exists
+  const old = document.getElementById('pagination-wrap');
+  if (old) old.remove();
+  if (totalPages <= 1) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pagination-wrap';
+  wrap.id = 'pagination-wrap';
+
+  const start = (currentPage - 1) * PAGE_SIZE + 1;
+  const end   = Math.min(currentPage * PAGE_SIZE, total);
+
+  // Build page number buttons — show max 5 around current page
+  let pageNums = '';
+  const delta = 2;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+      pageNums += `<button class="page-btn ${i === currentPage ? 'active' : ''}"
+        onclick="goToPage(${i})">${i}</button>`;
+    } else if (i === currentPage - delta - 1 || i === currentPage + delta + 1) {
+      pageNums += `<span style="padding:0 4px;color:var(--text-muted);font-size:.8rem">…</span>`;
+    }
+  }
+
+  wrap.innerHTML = `
+    <div class="pagination-info">Showing ${start}–${end} of ${total} transactions</div>
+    <div class="pagination-btns">
+      <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>
+      ${pageNums}
+      <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>
+    </div>`;
+
+  // Insert after the table wrap
+  const tableWrap = document.querySelector('.txn-table-wrap');
+  if (tableWrap) tableWrap.after(wrap);
+}
+
+function goToPage(page) {
+  currentPage = page;
+  if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
+  // Scroll table into view smoothly
+  document.querySelector('.txn-table-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+  const tbody = document.getElementById('txn-tbody');
+
+  // Apply risk level filter
+  let filtered = currentFilter === 'ALL'
+    ? transactions
+    : transactions.filter(t => t.risk_level === currentFilter);
+
+  // Apply search query on top of risk filter
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(t => {
+      const orig = (originalRows || []).find(r =>
+        Object.values(r).some(v => v == t.transaction_id)
+      ) || {};
+      const merchant = (orig.merchant || orig.Merchant || '').toLowerCase();
+      const txnId = (t.transaction_id || '').toLowerCase();
+      return txnId.includes(q) || merchant.includes(q);
+    });
+  }
+
+  if (filtered.length === 0) {
+    const msg = searchQuery
+      ? `No transactions match "<strong>${searchQuery}</strong>"`
+      : 'No transactions at this risk level';
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size:.85rem">${msg}</td></tr>`;
     return;
   }
 
@@ -2137,7 +2433,6 @@ function renderTable(transactions, originalRows) {
     const flags = (t.flags || []).map(f =>
       `<span class="flag-chip">${flagLabel(f)}</span>`
     ).join('');
-    t.risk_score = Math.min(Math.max(t.risk_score || 0, 0), 100);
     const scoreColor = t.risk_score >= 70 ? 'var(--high)' : t.risk_score >= 40 ? 'var(--med)' : 'var(--low)';
 
     return `
@@ -2191,18 +2486,19 @@ function setFilter(filter, btn) {
 
   const custWrap = document.getElementById('cust-table-wrap');
   const txnSection = document.getElementById('txn-table-section');
+  const searchWrap = document.getElementById('search-wrap');
 
   if (filter === 'CUSTOMER') {
-    // Show customer table, hide transaction table
     custWrap.style.display = 'block';
     txnSection.style.display = 'none';
     document.getElementById('cust-banner').classList.remove('visible');
     activeCustomerFilter = null;
+    if (searchWrap) searchWrap.style.display = 'none';
     renderCustomerTable();
   } else {
-    // Show transaction table, hide customer table
     custWrap.style.display = 'none';
     txnSection.style.display = 'block';
+    if (searchWrap) searchWrap.style.display = 'block';
     if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
   }
 }
@@ -2228,6 +2524,7 @@ function resetApp() {
   parsedCSV = { headers: [], rows: [] };
   analysisResult = null;
   currentFilter = 'ALL';
+  searchQuery = '';
   customerProfiles = [];
   activeCustomerFilter = null;
   document.getElementById('preview-wrap').style.display = 'none';
@@ -2242,7 +2539,12 @@ function resetApp() {
   document.getElementById('txn-table-section').style.display = 'block';
   document.getElementById('cust-banner').classList.remove('visible');
   document.getElementById('count-customer').textContent = '0';
-  // Reset filter tab to ALL
+  const searchInput = document.getElementById('txn-search');
+  if (searchInput) searchInput.value = '';
+  const searchClear = document.getElementById('search-clear');
+  if (searchClear) searchClear.classList.remove('visible');
+  const searchWrap = document.getElementById('search-wrap');
+  if (searchWrap) searchWrap.style.display = 'block';
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('.tab-btn[data-filter="ALL"]').classList.add('active');
 }
@@ -2476,6 +2778,25 @@ function renderHistory() {
         </div>
       </div>`;
   }).join('');
+}
+
+// ── Search (live filter) ──
+function handleSearch(val) {
+  searchQuery = val.trim();
+  const clearBtn = document.getElementById('search-clear');
+  if (clearBtn) clearBtn.classList.toggle('visible', searchQuery.length > 0);
+  if (analysisResult && currentFilter !== 'CUSTOMER') {
+    renderTable(analysisResult.transactions, lastTransactions);
+  }
+}
+
+function clearSearch() {
+  searchQuery = '';
+  const input = document.getElementById('txn-search');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('search-clear');
+  if (clearBtn) clearBtn.classList.remove('visible');
+  if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
 }
 
 // ── Helpers ──
