@@ -1799,7 +1799,46 @@ function retryAnalysis() {
   document.getElementById('loading-wrap').style.display = 'block';
   runAnalysis();
 }
+function renderPagination(total, totalPages) {
+  const old = document.getElementById('pagination-wrap');
+  if (old) old.remove();
+  if (totalPages <= 1) return;
 
+  const wrap = document.createElement('div');
+  wrap.className = 'pagination-wrap';
+  wrap.id = 'pagination-wrap';
+
+  const start = (currentPage - 1) * PAGE_SIZE + 1;
+  const end = Math.min(currentPage * PAGE_SIZE, total);
+
+  let pageNums = '';
+  const delta = 2;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+      pageNums += `<button class="page-btn ${i === currentPage ? 'active' : ''}"
+        onclick="goToPage(${i})">${i}</button>`;
+    } else if (i === currentPage - delta - 1 || i === currentPage + delta + 1) {
+      pageNums += `<span style="padding:0 4px;color:var(--text-muted);font-size:.8rem">…</span>`;
+    }
+  }
+
+  wrap.innerHTML = `
+    <div class="pagination-info">Showing ${start}–${end} of ${total} transactions</div>
+    <div class="pagination-btns">
+      <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>
+      ${pageNums}
+      <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>
+    </div>`;
+
+  const tableWrap = document.querySelector('.txn-table-wrap');
+  if (tableWrap) tableWrap.after(wrap);
+}
+
+function goToPage(page) {
+  currentPage = page;
+  if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
+  document.querySelector('.txn-table-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 async function callClaudeAPI(apiKey, rows) {
   await new Promise(r => setTimeout(r, 2000));
 
@@ -2476,6 +2515,7 @@ function toggleRow(row, expId) {
 }
 
 function setFilter(filter, btn) {
+  currentPage = 1;
   currentFilter = filter;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -2520,6 +2560,7 @@ function resetApp() {
   parsedCSV = { headers: [], rows: [] };
   analysisResult = null;
   currentFilter = 'ALL';
+  currentPage = 1;
   searchQuery = '';
   customerProfiles = [];
   activeCustomerFilter = null;
@@ -2779,6 +2820,7 @@ function renderHistory() {
 // ── Search (live filter) ──
 function handleSearch(val) {
   searchQuery = val.trim();
+  currentPage = 1; 
   const clearBtn = document.getElementById('search-clear');
   if (clearBtn) clearBtn.classList.toggle('visible', searchQuery.length > 0);
   if (analysisResult && currentFilter !== 'CUSTOMER') {
