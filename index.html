@@ -1325,13 +1325,12 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
     <span class="logo-name" style="color:var(--accent)">BullzStock BFSI AI</span>
   </div>
   <nav class="header-nav">
-    <button class="nav-tab active" onclick="showTab('analyse')">RegIntel</button>
-    <button class="nav-tab" onclick="showTab('analyse')">FraudLens</button>
-    <button class="nav-tab" onclick="showTab('about')">Risk Profiles</button>
+    <button class="nav-tab active" data-tab="analyse" onclick="showTab('analyse')">FraudLens</button>
+    <button class="nav-tab" data-tab="about" onclick="showTab('about')">Risk Profiles</button>
   </nav>
   <div style="display:flex;align-items:center;gap:8px">
     <span class="material-symbols-outlined" style="color:var(--text-secondary)">account_circle</span>
-    <span style="font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text-secondary)">ANALYST_042</span>
+    <span id="analyst-name-display" style="font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text-secondary);cursor:pointer;title:Click to set your name" onclick="setAnalystName()">ANALYST</span>
   </div>
 </header>
 
@@ -1339,13 +1338,13 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
 <aside class="sidebar">
   <p class="sidebar-label">COMMAND CENTER</p>
   <nav class="sidebar-nav">
-    <button class="sidebar-link active" onclick="showTab('analyse')">
+    <button class="sidebar-link active" data-tab="analyse" onclick="showTab('analyse')">
       <span class="material-symbols-outlined">analytics</span> Analyse
     </button>
-    <button class="sidebar-link" onclick="showTab('history')">
+    <button class="sidebar-link" data-tab="history" onclick="showTab('history')">
       <span class="material-symbols-outlined">history</span> History
     </button>
-    <button class="sidebar-link" onclick="showTab('about')">
+    <button class="sidebar-link" data-tab="about" onclick="showTab('about')">
       <span class="material-symbols-outlined">info</span> About
     </button>
   </nav>
@@ -1354,8 +1353,8 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
       <span class="sidebar-health-title">System Health</span>
       <div class="pulse-dot"></div>
     </div>
-    <p>Latency: 14ms</p>
-    <p>Uptime: 99.998%</p>
+    <p>Latency: <span id="health-latency">—</span></p>
+    <p>Session: <span id="health-uptime">0m 0s</span></p>
   </div>
 </aside>
 
@@ -1773,13 +1772,53 @@ function updateKeyStatus() {
 }
 updateKeyStatus();
 initCurrency();
+// ── Analyst Name ──
+function initAnalystName() {
+  const saved = localStorage.getItem('fl_analyst_name') || 'ANALYST';
+  const el = document.getElementById('analyst-name-display');
+  if (el) el.textContent = saved;
+}
+function setAnalystName() {
+  const current = localStorage.getItem('fl_analyst_name') || 'ANALYST';
+  const name = prompt('Enter your analyst name:', current);
+  if (name && name.trim()) {
+    const clean = name.trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_').substring(0, 20);
+    localStorage.setItem('fl_analyst_name', clean);
+    document.getElementById('analyst-name-display').textContent = clean;
+  }
+}
+initAnalystName();
+// ── System Health: Session Uptime ──
+const _sessionStart = Date.now();
+setInterval(() => {
+  const elapsed = Math.floor((Date.now() - _sessionStart) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  const el = document.getElementById('health-uptime');
+  if (el) el.textContent = `${m}m ${s}s`;
+}, 1000);
+
+// ── System Health: Latency — measured on each real API call ──
+function updateLatencyDisplay(ms) {
+  const el = document.getElementById('health-latency');
+  if (el) el.textContent = ms + 'ms';
+}
 
 function showTab(tab) {
   document.getElementById('tab-analyse').classList.toggle('hidden', tab !== 'analyse');
   document.getElementById('tab-history').classList.toggle('hidden', tab !== 'history');
   document.getElementById('tab-about').classList.toggle('hidden', tab !== 'about');
+
+  // Update top nav active state
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.nav-tab[onclick="showTab('${tab}')"]`).classList.add('active');
+  const activeNavTab = document.querySelector(`.nav-tab[data-tab="${tab}"]`);
+  if (activeNavTab) activeNavTab.classList.add('active');
+
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-link').forEach(t => t.classList.remove('active'));
+  const activeSidebarLink = document.querySelector(`.sidebar-link[data-tab="${tab}"]`);
+  if (activeSidebarLink) activeSidebarLink.classList.add('active');
+
   if (tab === 'history') renderHistory();
   window.scrollTo(0, 0);
 }
@@ -1881,7 +1920,7 @@ async function runAnalysis() {
   const rows = parsedCSV.rows.slice(0,50);
   showLoading();
   try {
-    const result = await callClaudeAPI(key, rows);
+    const result = await callGeminiAPI(key, rows);
     analysisResult = result;
     lastTransactions = rows;
     saveToHistory(result, rows, parsedCSV.filename || document.getElementById('file-chip').textContent);
@@ -1889,13 +1928,22 @@ async function runAnalysis() {
     showDashboard(result, rows);
   } catch(err) {
     stopLoading();
-    document.getElementById('loading-card').classList.add('hidden');
-    document.getElementById('upload-card').classList.remove('hidden');
-    const errBanner = document.getElementById('error-banner');
-    if (errBanner) {
-      errBanner.textContent = '⚠ Analysis failed: ' + err.message;
-      errBanner.style.display = 'block';
+    // Keep loading-card visible so the error-box inside it shows
+    document.getElementById('loading-wrap').style.display = 'none';
+
+    let userMsg = err.message || 'Unknown error';
+    if (!navigator.onLine || userMsg.toLowerCase().includes('failed to fetch')) {
+      userMsg = 'Network error — check your connection and try again.';
+    } else if (userMsg.startsWith('503')) {
+      userMsg = 'Service temporarily unavailable — Gemini is overloaded, please retry in a moment.';
+    } else if (userMsg.startsWith('429')) {
+      userMsg = 'Rate limit hit — too many requests. Wait a minute and retry.';
+    } else if (userMsg.startsWith('400')) {
+      userMsg = 'Invalid API key — please re-enter your Gemini key above.';
     }
+
+    document.getElementById('error-text').textContent = userMsg;
+    document.getElementById('error-box').classList.add('visible');
     console.error('Full error:', err);
   }
 }
@@ -1945,7 +1993,7 @@ function goToPage(page) {
   if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
   document.querySelector('.txn-table-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-async function callClaudeAPI(apiKey, rows) {
+async function callGeminiAPI(apiKey, rows) {
   await new Promise(r => setTimeout(r, 2000));
 
   const systemPrompt = `You are a financial fraud detection AI. Analyse the provided transactions and return ONLY valid JSON with no markdown, no preamble, no explanation outside JSON. Return exactly this structure:
@@ -1977,15 +2025,13 @@ CRITICAL: Output ONLY the raw JSON object. No markdown. No backticks. No thinkin
   );
 
   if (!response.ok) {
+    if (response.status === 400) throw new Error('400: Invalid API key — please check your Gemini key and try again.');
+    if (response.status === 429) throw new Error('429: Rate limit hit — too many requests. Wait a minute and retry.');
+    if (response.status === 503) throw new Error('503: Service temporarily unavailable — Gemini is overloaded, please retry in a moment.');
     const err = await response.json().catch(() => ({}));
-    if (response.status === 400) throw new Error('Invalid API key or bad request. Check your Gemini key.');
-    if (response.status === 429) {
-  const errBody = await response.json().catch(() => ({}));
-  throw new Error('429 detail: ' + JSON.stringify(errBody));
-}
-    throw new Error(`API error ${response.status}: ${err.error?.message || 'Unknown error'}`);
+    throw new Error(`${response.status}: ${err.error?.message || 'Unknown API error'}`);
   }
-
+  updateLatencyDisplay(Date.now() - _t0);
   const data = await response.json();
   let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   console.log('Raw Gemini response:', text);
