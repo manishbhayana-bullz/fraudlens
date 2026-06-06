@@ -1322,7 +1322,7 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
     <div class="logo-icon">
       <span class="material-symbols-outlined" style="font-size:28px;color:var(--accent)">shield_person</span>
     </div>
-    <span class="logo-name" style="color:var(--accent)">BullzStock BFSI AI</span>
+    <span class="logo-name"><span style="color:var(--accent)">Fraud</span>Lens</span>
   </div>
   <nav class="header-nav">
     <button class="nav-tab active" data-tab="analyse" onclick="showTab('analyse')">FraudLens</button>
@@ -1809,12 +1809,12 @@ function showTab(tab) {
   document.getElementById('tab-history').classList.toggle('hidden', tab !== 'history');
   document.getElementById('tab-about').classList.toggle('hidden', tab !== 'about');
 
-  // Update top nav active state
+  // Update top nav tabs
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   const activeNavTab = document.querySelector(`.nav-tab[data-tab="${tab}"]`);
   if (activeNavTab) activeNavTab.classList.add('active');
 
-  // Update sidebar active state
+  // Update sidebar links
   document.querySelectorAll('.sidebar-link').forEach(t => t.classList.remove('active'));
   const activeSidebarLink = document.querySelector(`.sidebar-link[data-tab="${tab}"]`);
   if (activeSidebarLink) activeSidebarLink.classList.add('active');
@@ -1993,6 +1993,22 @@ function goToPage(page) {
   if (analysisResult) renderTable(analysisResult.transactions, lastTransactions);
   document.querySelector('.txn-table-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+// ── Fetch with Auto-Retry ──
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const response = await fetch(url, options);
+    if (response.status === 503 || response.status === 429) {
+      if (attempt < maxRetries) {
+        const waitMs = attempt * 3000;
+        document.getElementById('loading-msg').textContent =
+          `Gemini busy — retrying in ${waitMs/1000}s… (attempt ${attempt}/${maxRetries})`;
+        await new Promise(r => setTimeout(r, waitMs));
+        continue;
+      }
+    }
+    return response;
+  }
+}
 async function callGeminiAPI(apiKey, rows) {
   await new Promise(r => setTimeout(r, 2000));
 
@@ -2010,7 +2026,7 @@ CRITICAL: Output ONLY the raw JSON object. No markdown. No backticks. No thinkin
 
   const userPrompt = `Analyse these ${rows.length} financial transactions for fraud risk:\n\n${JSON.stringify(rows, null, 2)}`;
 
-  const response = await fetch(
+  const response = await fetchWithRetry(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
     {
       method: 'POST',
