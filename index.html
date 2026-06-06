@@ -526,16 +526,21 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
   position: relative;
   overflow: hidden;
 }
+/* REMOVE the existing .metric-card::before (top 2px bar) and replace with: */
 .metric-card::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
+  top: 0; left: 0; bottom: 0;
+  width: 4px;
   background: var(--accent);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
 }
 .metric-card.danger::before { background: var(--high); }
 .metric-card.warn::before   { background: var(--med); }
 .metric-card.safe::before   { background: var(--low); }
+
+/* Glow on avg risk score card */
+.metric-card.safe { box-shadow: 0 0 15px rgba(189,255,0,0.15); }  
 .metric-label {
   font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--text-secondary); margin-bottom: 8px; font-family: var(--mono);
@@ -1166,6 +1171,147 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
 .hidden { display: none !important; }
 .fade-in { animation: fadeIn 0.35s ease forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+/* -- Custom Scrollbar -- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #080B10; }
+::-webkit-scrollbar-thumb { background: #32353b; border-radius: 3px; }
+
+/* -- Sidebar Styles -- */
+.sidebar {
+  position: fixed; left: 0; top: 0;
+  width: 256px; height: 100%;
+  background: #191c21;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex; flex-direction: column;
+  gap: 16px; padding: 16px;
+  padding-top: 96px; /* below header */
+  z-index: 40;
+}
+.sidebar-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-secondary); padding: 0 16px; margin-bottom: 8px;
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+.sidebar-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: var(--radius-lg);
+  color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+  cursor: pointer; background: transparent; border: none;
+  font-family: var(--font); width: 100%; text-align: left;
+}
+.sidebar-link:hover { background: var(--surface-variant); color: var(--text-primary); }
+.sidebar-link.active { background: rgba(189,255,0,0.10); color: var(--accent); }
+.sidebar-link .material-symbols-outlined { font-size: 22px; }
+.sidebar-health {
+  margin-top: auto;
+  background: rgba(13,17,23,0.80); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: var(--radius-lg); padding: 16px;
+}
+.sidebar-health-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+}
+.sidebar-health-title {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
+}
+.pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+.sidebar-health p { font-size: 11px; color: var(--text-secondary); font-family: var(--mono); }
+
+@media (min-width: 1024px) {
+  .main { padding-left: 256px; max-width: none; }
+  .sidebar { display: flex; }
+  .header { padding-left: calc(256px + 32px); } /* 256px sidebar + original 32px padding */
+}
+@media (max-width: 1023px) { .sidebar { display: none; } }
+
+/* -- Fraud Pattern Icon-card Styles --*/
+.pattern-icon-card {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 16px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-lg); margin-bottom: 12px;
+}
+.pattern-icon-card:last-child { margin-bottom: 0; }
+.pattern-icon-card .material-symbols-outlined { font-size: 22px; margin-top: 2px; flex-shrink: 0; }
+.pattern-icon-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+.pattern-icon-card p  { font-size: 0.82rem; color: var(--text-secondary); }
+
+/* -- Risk Distribution Vertical Bars --*/
+.risk-dist-bars { display: flex; flex-direction: column; gap: 24px; flex: 1; }
+.risk-dist-row { display: flex; flex-direction: column; gap: 8px; }
+.risk-dist-header { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; }
+.risk-dist-track { height: 12px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow: hidden; }
+.risk-dist-fill { height: 100%; border-radius: 100px; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
+.risk-dist-fill.high { background: var(--high); }
+.risk-dist-fill.med  { background: var(--med); }
+.risk-dist-fill.low  { background: var(--accent); }
+.btn-view-report {
+  width: 100%; padding: 12px; margin-top: 24px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  border-radius: var(--radius-lg); color: var(--text-primary);
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; cursor: pointer; transition: background var(--transition);
+}
+.btn-view-report:hover { background: rgba(255,255,255,0.10); }
+
+/* -- Heatmap + AI Predictor Sections --*/
+.bottom-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+@media (max-width: 900px) { .bottom-sections { grid-template-columns: 1fr; } }
+.heatmap-card {
+  background: rgba(13,17,23,0.80); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg); overflow: hidden; min-height: 300px; position: relative;
+}
+.heatmap-label {
+  position: absolute; top: 16px; left: 16px; z-index: 10;
+  background: rgba(13,17,23,0.80); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.10); border-radius: var(--radius-lg);
+  padding: 8px 12px;
+}
+.heatmap-label .label-title {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
+}
+.heatmap-label .label-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+.heatmap-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.80; }
+.ai-predictor-card {
+  background: rgba(13,17,23,0.80); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg); padding: 32px 24px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+}
+.ai-predictor-card .material-symbols-outlined { font-size: 48px; color: var(--accent); margin-bottom: 16px; }
+.ai-predictor-card h3 { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; }
+.ai-predictor-card p { font-size: 0.85rem; color: var(--text-secondary); max-width: 320px; margin: 0 auto 24px; }
+.btn-drop-csv {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 24px; background: rgba(255,255,255,0.05);
+  border: 1px dashed rgba(255,255,255,0.20); border-radius: var(--radius-lg);
+  cursor: pointer; transition: all var(--transition);
+}
+.btn-drop-csv:hover { border-color: var(--accent); background: rgba(189,255,0,0.05); }
+.btn-drop-csv .material-symbols-outlined { font-size: 24px; color: var(--text-secondary); }
+.btn-drop-csv:hover .material-symbols-outlined { color: var(--accent); }
+.btn-drop-csv span.label { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); }
+
+/* --Table Action Column + Merchant Icon-- */
+.merchant-cell { display: flex; align-items: center; gap: 8px; }
+.merchant-cell .material-symbols-outlined { font-size: 16px; color: var(--text-secondary); }
+.action-btn {
+  background: transparent; border: none; cursor: pointer;
+  font-family: 'Material Symbols Outlined'; font-size: 22px;
+  color: var(--text-secondary); transition: color var(--transition);
+  line-height: 1;
+}
+.action-btn:hover { color: var(--accent); }
+/* Fix flag chip border-radius to 2px (not pill) */
+.flag-chip { border-radius: 2px; }
+
 </style>
 </head>
 <body>
@@ -1174,17 +1320,44 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
 <header class="header">
   <div class="logo">
     <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span class="material-symbols-outlined" style="font-size:28px;color:var(--accent)">shield_person</span>
     </div>
-    <span class="logo-name">Fraud<span>Lens</span></span>
+    <span class="logo-name" style="color:var(--accent)">BullzStock BFSI AI</span>
   </div>
   <nav class="header-nav">
-    <button class="nav-tab active" onclick="showTab('analyse')">Analyse</button>
-    <button class="nav-tab" onclick="showTab('history')">History</button>
-    <button class="nav-tab" onclick="showTab('about')">About</button>
+    <button class="nav-tab active" onclick="showTab('analyse')">RegIntel</button>
+    <button class="nav-tab" onclick="showTab('analyse')">FraudLens</button>
+    <button class="nav-tab" onclick="showTab('about')">Risk Profiles</button>
   </nav>
-  <span class="header-badge">Beta</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="material-symbols-outlined" style="color:var(--text-secondary)">account_circle</span>
+    <span style="font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text-secondary)">ANALYST_042</span>
+  </div>
 </header>
+
+<!-- Add Sidebar -->
+<aside class="sidebar">
+  <p class="sidebar-label">COMMAND CENTER</p>
+  <nav class="sidebar-nav">
+    <button class="sidebar-link active" onclick="showTab('analyse')">
+      <span class="material-symbols-outlined">analytics</span> Analyse
+    </button>
+    <button class="sidebar-link" onclick="showTab('history')">
+      <span class="material-symbols-outlined">history</span> History
+    </button>
+    <button class="sidebar-link" onclick="showTab('about')">
+      <span class="material-symbols-outlined">info</span> About
+    </button>
+  </nav>
+  <div class="sidebar-health">
+    <div class="sidebar-health-header">
+      <span class="sidebar-health-title">System Health</span>
+      <div class="pulse-dot"></div>
+    </div>
+    <p>Latency: 14ms</p>
+    <p>Uptime: 99.998%</p>
+  </div>
+</aside>
 
 <main class="main">
 <div id="tab-analyse">
@@ -1292,8 +1465,10 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn-export" onclick="exportCSV()">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export Results CSV
+          <svg viewBox="0 0 24 24">...</svg> EXPORT CSV
+        </button>
+        <button class="btn-primary" onclick="resetAll()" style="background:var(--accent);color:#000;padding:8px 16px;font-size:11px;font-family:var(--mono);letter-spacing:0.08em">
+          RUN NEW AUDIT
         </button>
       </div>
     </div>
@@ -1335,15 +1510,34 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
           <span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Low Risk</span>
         </div>
       </div>
-      <div class="chart-bars-wrap" id="chart-bars-wrap">
-        <!-- Populated by renderChart() -->
+      <div class="chart-bars-wrap" id="chart-bars-wrap" style="margin:20px 0"></div>
+      <div class="mt-auto" style="padding-top:24px;border-top:1px solid var(--border-glass)">
+        <button class="btn-view-report">VIEW DETAILED REPORT</button>
       </div>
       <hr class="chart-divider"/>
       <div class="chart-summary-row" id="chart-summary-row">
+      <div class="chart-bars-wrap" id="chart-bars-wrap">  
         <!-- Populated by renderChart() -->
       </div>
     </div>
-
+    <div class="bottom-sections">
+      <div class="heatmap-card">
+        <div class="heatmap-label">
+          <div class="label-title">GLOBAL RISK HEATMAP</div>
+          <div class="label-sub">Live Traffic Anomalies</div>
+        </div>
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCri6RzwYrup5BBvEyVz5oRClJDJUnCVRS4T3Ot7sqYzeTwsX29SrnG0ZbxVNcfjZ7mxQGWFZSf8seyP5endu74_WYsW9D-HBQPFu-dtU3ueBW0Ic7fjco-pXAurDGvyWTgSktcnxBmP5DCememfCaSdrX7YWJVQbUSItokr1qfSzWDED-p4L0nmBWCPoteejZyPxQzKXvHurZPVFQ8Y9Ex7MKTiAPp0NM7o4Qy_MhwSgQoWOxq9SKjq7DHroEJfGtXFoOJ6f2ViqJl" alt="Global Risk Heatmap"/>
+      </div>
+      <div class="ai-predictor-card">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        <h3>AI Signal Predictor</h3>
+        <p>Upload a custom CSV to run a predictive simulation based on current market fraud trends.</p>
+        <button class="btn-drop-csv">
+          <span class="material-symbols-outlined">upload_file</span>
+          <span class="label">DROP CSV HERE</span>
+        </button>
+      </div>
+    </div>
     <!-- Transactions -->
     <div class="filter-bar">
       <div class="filter-tabs" id="filter-tabs">
@@ -1409,7 +1603,8 @@ tbody tr:hover td { background: rgba(255,255,255,0.03); }
             <th>Merchant</th>
             <th>Risk Level</th>
             <th>Score</th>
-            <th>Flags</th>
+            <th>Signals</th>
+            <th style="width:60px">Action</th>
           </tr>
         </thead>
         <tbody id="txn-tbody"></tbody>
@@ -2173,16 +2368,28 @@ function showDashboard(data, originalRows) {
   const patterns = data.top_patterns || [];
   const recs = data.recommendations || [];
   ig.innerHTML = `
-    <div class="insight-card">
-      <div class="insight-card-title">
-        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Top Fraud Patterns Detected
-      </div>
-      <ul class="pattern-list">
-        ${patterns.length ? patterns.map(p=>`<li>${p}</li>`).join('') : '<li>No significant patterns detected</li>'}
-      </ul>
+  <div class="insight-card">
+    <div class="insight-card-title">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Top Fraud Patterns Detected
     </div>
-    <div class="insight-card">
+    ${patterns.length
+      ? patterns.map((p, i) => {
+          const icons  = ['error','warning','help_center'];
+          const colors = ['var(--high)','var(--med)','var(--text-secondary)'];
+          // Split pattern string into title + description if it contains a colon
+          const parts = p.split(':');
+          const title = parts[0].trim();
+          const desc  = parts.slice(1).join(':').trim() || p;
+          return `<div class="pattern-icon-card">
+            <span class="material-symbols-outlined" style="color:${colors[i] || colors[2]}">${icons[i] || 'info'}</span>
+            <div><h4>${title}</h4><p>${desc}</p></div>
+          </div>`;
+        }).join('')
+      : '<div class="pattern-icon-card"><span class="material-symbols-outlined" style="color:var(--text-muted)">info</span><div><h4>No significant patterns</h4><p>No notable fraud patterns detected in this dataset.</p></div></div>'
+    }
+  </div>
+  <div class="insight-card">
       <div class="insight-card-title">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Recommended Actions
@@ -2263,7 +2470,7 @@ function renderTable(transactions, originalRows) {
         <td><svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></td>
         <td class="txn-id-cell">${t.transaction_id}</td>
         <td class="amount-cell">${sym}${fmt(amount)}</td>
-        <td>${merchant}</td>
+        <td><div class="merchant-cell"><span class="material-symbols-outlined">storefront</span>${merchant}</div></td>
         <td><span class="risk-badge ${t.risk_level}">${t.risk_level}</span></td>
         <td>
           <div class="score-cell">
@@ -2274,7 +2481,10 @@ function renderTable(transactions, originalRows) {
           </div>
         </td>
         <td class="flags-cell">${flagsHtml}</td>
+        <td style="text-align:center"><button class="action-btn" onclick="event.stopPropagation()">visibility</button></td>
       </tr>
+  <tr class="expand-row hidden" id="exp-${globalIdx}">
+    <td colspan="8">
       <tr class="expand-row hidden" id="exp-${globalIdx}">
         <td colspan="7">
           <div class="expand-content">
