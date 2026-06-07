@@ -40,6 +40,7 @@
   --transition:  0.18s ease;
 }
 
+
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 15px; -webkit-font-smoothing: antialiased; }
@@ -1255,7 +1256,147 @@ tbody tr:hover td { background: var(--off-white); }
 .hidden { display: none !important; }
 .fade-in { animation: fadeIn 0.35s ease forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+
+/* FINAL THEME FIXES */
+body.dark-theme{--white:rgba(13,17,23,0.97);--off-white:#080B10;--text-primary:#E6EDF3;--text-secondary:#9AA4B2;--text-muted:#7D8590;--border:#30363D;--border-mid:#30363D;--accent:#BDFF00;}
+body.light-theme{--white:#FFFFFF;--off-white:#F8F9FB;--text-primary:#0F1623;--text-secondary:#5A6478;--text-muted:#9AA3B5;--border:#E4E8EF;--border-mid:#D0D7E3;--accent:#1A56DB;}
+body.dark-theme .card,body.dark-theme .metric-card,body.dark-theme .insight-card,body.dark-theme .risk-chart-card,body.dark-theme .txn-table-wrap,body.dark-theme .cust-table-wrap,body.dark-theme .history-card{background:rgba(13,17,23,0.97)!important;color:#E6EDF3!important;}
+body.light-theme .card,body.light-theme .metric-card,body.light-theme .insight-card,body.light-theme .risk-chart-card,body.light-theme .txn-table-wrap,body.light-theme .cust-table-wrap,body.light-theme .history-card{background:#fff!important;color:#0F1623!important;}
+body.light-theme aside{background:#fff!important;border-color:#E4E8EF!important;}
+body.dark-theme aside{background:#0D1117!important;border-color:#202833!important;}
+body.light-theme .main{background:#F8F9FB!important;}
+body.dark-theme .main{background:#080B10!important;}
+body.light-theme .main{background:#F8F9FB!important;}
+body.dark-theme .main{background:#080B10!important;}
+
+body.light-theme{
+    background:#F8F9FB!important;
+    color:#0F1623!important;
+}
+
+body.light-theme .header{
+    background:#FFFFFF!important;
+}
+
+body.light-theme .card,
+body.light-theme .history-card,
+body.light-theme .metric-card,
+body.light-theme .insight-card,
+body.light-theme .risk-chart-card{
+    background:#FFFFFF!important;
+    color:#0F1623!important;
+    border-color:#E4E8EF!important;
+}
+body.dark-theme .btn-primary,
+body.dark-theme .analyse-btn,
+body.dark-theme button[type="submit"],
+body.dark-theme .action-btn {
+
+    background:#BDFF00 !important;
+    color:#000000 !important;
+    font-weight:700 !important;
+}
+
+body.dark-theme .btn-primary svg,
+body.dark-theme .analyse-btn svg,
+body.dark-theme .action-btn svg {
+
+    color:#000000 !important;
+    stroke:#000000 !important;
+}
+
+body.dark-theme .upload-area svg,
+body.dark-theme .upload-icon{
+
+    color:#000000 !important;
+    stroke:#000000 !important;
+}
+
+/* ===== DARK THEME VISIBILITY FIX ===== */
+
+body.dark-theme .btn-primary,
+body.dark-theme .analyse-btn,
+body.dark-theme .action-btn,
+body.dark-theme .upload-btn {
+
+    background:#BDFF00 !important;
+    color:#000000 !important;
+    font-weight:700 !important;
+}
+
+body.dark-theme .btn-primary *,
+body.dark-theme .analyse-btn *,
+body.dark-theme .action-btn *,
+body.dark-theme .upload-btn * {
+
+    color:#000000 !important;
+    stroke:#000000 !important;
+}
+
+body.dark-theme .logo-icon svg,
+body.dark-theme .upload-area svg,
+body.dark-theme .upload-icon svg {
+
+    stroke:#000000 !important;
+    color:#000000 !important;
+}
+
+body.dark-theme .logo-icon{
+    background:#BDFF00 !important;
+}
+/* ===== Dark Theme Text Contrast ===== */
+
+body.dark-theme {
+
+    --text-secondary:#C9D1D9;
+    --text-muted:#AAB4BE;
+}
+/* ===== About Section Readability ===== */
+
+body.dark-theme .timeline-item,
+body.dark-theme .phase-card,
+body.dark-theme .roadmap-item {
+
+    color:#E6EDF3 !important;
+}
+
+body.dark-theme .timeline-item p,
+body.dark-theme .phase-card p,
+body.dark-theme .roadmap-item p {
+
+    color:#D0D7DE !important;
+}
+
+body.dark-theme .timeline-item h3,
+body.dark-theme .phase-card h3,
+body.dark-theme .roadmap-item h3 {
+
+    color:#BDFF00 !important;
+}
 </style>
+
+<style id="fraudlens-dark-theme">
+:root{
+ --bg-main:#080B10;--card-bg:rgba(13,17,23,0.97);--accent:#BDFF00;
+ --text-primary:#F5F7FA;--text-secondary:#A9B4C0;--text-muted:#7D8896;
+ --border:#202833;--off-white:#10161f;--white:#0d1117;
+ --accent-light:rgba(189,255,0,.12);
+}
+body.dark-theme,.dark-theme body{background:#080B10}
+body.dark-theme{background:#080B10;color:var(--text-primary)}
+body.dark-theme .header,
+body.dark-theme .card,
+body.dark-theme .metric-card,
+body.dark-theme .insight-card,
+body.dark-theme .risk-chart-card,
+body.dark-theme .txn-table-wrap,
+body.dark-theme .cust-table-wrap,
+body.dark-theme .history-card{background:rgba(13,17,23,0.97)!important;backdrop-filter:none!important}
+body.dark-theme aside{background:#0d1117!important;border-color:#202833!important}
+body.dark-theme .main{background:#080B10}
+</style>
+
 </head>
 <body>
 
@@ -1272,6 +1413,7 @@ tbody tr:hover td { background: var(--off-white); }
     <button class="nav-tab" data-tab="about" onclick="showTab('about')">Risk Profiles</button>
   </nav>
   <div style="display:flex;align-items:center;gap:8px">
+    <button id="theme-toggle" onclick="toggleTheme()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text-primary)">☀️</button>
     <span id="analyst-name-display" style="font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text-secondary);cursor:pointer" onclick="setAnalystName()">ANALYST</span>
   </div>
 </header>
@@ -1875,7 +2017,7 @@ async function runAnalysis() {
     } else if (userMsg.startsWith('429')) {
       userMsg = 'Rate limit hit — too many requests. Wait a minute and retry.';
     } else if (userMsg.startsWith('400')) {
-      userMsg = 'Invalid API key — please re-enter your Gemini key above.';
+      userMsg = userMsg;
     }
     const errText = document.getElementById('error-text');
     const errBox = document.getElementById('error-box');
@@ -1963,7 +2105,14 @@ CRITICAL: Output ONLY the raw JSON object. No markdown. No backticks. No thinkin
   );
 
   if (!response.ok) {
-    if (response.status === 400) throw new Error('400: Invalid API key — please check your Gemini key.');
+    if (response.status === 400) {
+    const err = await response.json().catch(() => ({}));
+
+    throw new Error(
+        '400: ' +
+        (err.error?.message || 'Bad Request')
+    );
+}
     if (response.status === 429) throw new Error('429: Rate limit hit — too many requests. Wait a minute and retry.');
     if (response.status === 503) throw new Error('503: Service temporarily unavailable — Gemini is overloaded, please retry.');
     const err = await response.json().catch(() => ({}));
@@ -2947,5 +3096,62 @@ function flagLabel(f) {
   return map[f] || f;
 }
 </script>
+
+<script>
+function applyTheme(theme){
+
+    document.body.classList.remove(
+        'dark-theme',
+        'light-theme'
+    );
+
+    document.body.classList.add(theme);
+
+    localStorage.setItem(
+        'fraudlens-theme',
+        theme
+    );
+
+    const btn =
+        document.getElementById(
+            'theme-toggle'
+        );
+
+    if(btn){
+        btn.textContent =
+            theme === 'dark-theme'
+            ? '🌙'
+            : '☀️';
+    }
+}
+
+function toggleTheme(){
+
+    const nextTheme =
+        document.body.classList.contains(
+            'dark-theme'
+        )
+        ? 'light-theme'
+        : 'dark-theme';
+
+    applyTheme(nextTheme);
+}
+
+document.addEventListener(
+    'DOMContentLoaded',
+    ()=>{
+
+        const savedTheme =
+            localStorage.getItem(
+                'fraudlens-theme'
+            );
+
+        applyTheme(
+            savedTheme || 'dark-theme'
+        );
+    }
+);
+</script>
+
 </body>
 </html>
