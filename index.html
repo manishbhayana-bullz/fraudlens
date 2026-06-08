@@ -1412,9 +1412,47 @@ body.dark-theme #tab-about [style*="color:var(--text-muted);text-transform:upper
     color: #8B949E !important;
 }
 /* Map + Predictor — light theme overrides */
-body.light-theme #map-predictor-row > div {
+body.light-theme #map-predictor-row > div:not(#fl-map-card) {
     background: #FFFFFF !important;
     border-color: var(--border) !important;
+}
+body.dark-theme #fl-map-card {
+    background: #04080f !important;
+    border: 1px solid #1a2433 !important;
+}
+body.light-theme #fl-map-card {
+    background: #07111f !important;
+    border: 2px solid #4a7fa5 !important;
+    box-shadow: 0 0 0 3px rgba(74,127,165,0.3), 0 8px 24px rgba(0,0,0,0.25) !important;
+    border-radius: 16px !important;
+}
+body.light-theme #fl-map-header {
+    background: rgba(255,255,255,0.92) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+}
+body.light-theme #fl-map-title { color: #1a56db !important; }
+body.light-theme #fl-map-sub   { color: #556070 !important; }
+body.light-theme #fl-alert-counter,
+body.light-theme [style*="background:rgba(4,8,15,0.9)"] {
+    background: rgba(255,255,255,0.92) !important;
+    border-color: rgba(0,0,0,0.12) !important;
+}
+body.light-theme .fl-legend-badge {
+    background: rgba(255,255,255,0.92) !important;
+}
+body.light-theme #fl-map-legend .fl-legend-badge:nth-child(2) { color: #D97706 !important; }
+body.light-theme #fl-map-legend .fl-legend-badge:nth-child(3) { color: #16a34a !important; }
+body.light-theme #fl-map-header {
+    background: rgba(255,255,255,0.92) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+}
+body.light-theme #fl-map-title { color: #1a56db !important; }
+body.light-theme #fl-map-sub   { color: #556070 !important; }
+
+body.light-theme #fl-alert-counter,
+body.light-theme [style*="background:rgba(4,8,15,0.9)"] {
+    background: rgba(255,255,255,0.92) !important;
+    border-color: rgba(0,0,0,0.12) !important;
 }
 body.light-theme #map-predictor-row svg circle { }
 body.light-theme #map-predictor-row [style*="color:var(--text-primary)"] {
@@ -1754,41 +1792,77 @@ body.dark-theme .main{background:#080B10}
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;margin-bottom:24px" id="map-predictor-row">
 
   <!-- Global Risk Heatmap -->
-  <div id="fl-map-card" style="background:#04080f;border:1px solid #1a2433;border-radius:16px;overflow:hidden;min-height:300px;position:relative;">
+  <div id="fl-map-card" style="border-radius:16px;overflow:hidden;min-height:300px;position:relative;">
     <canvas id="fl-map-canvas" style="display:block;width:100%;height:100%;position:absolute;inset:0"></canvas>
-    <div style="position:absolute;top:14px;left:14px;z-index:10;background:rgba(4,8,15,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;pointer-events:none">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:#BDFF00;font-family:var(--mono)">GLOBAL RISK HEATMAP</div>
-      <div style="font-size:9px;color:#556070;margin-top:2px;font-family:var(--mono)">Live Traffic Anomalies</div>
+   <div id="fl-map-header" style="position:absolute;top:14px;left:14px;z-index:10;background:rgba(4,8,15,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;pointer-events:none">
+      <div id="fl-map-title" style="font-size:10px;font-weight:700;letter-spacing:.1em;color:#BDFF00;font-family:var(--mono)">GLOBAL RISK HEATMAP</div>
+      <div id="fl-map-sub" style="font-size:9px;color:#556070;margin-top:2px;font-family:var(--mono)">Live Traffic Anomalies</div>
     </div>
-    <div style="position:absolute;top:14px;right:14px;z-index:10;background:rgba(4,8,15,0.9);border:1px solid rgba(189,255,0,0.3);border-radius:20px;padding:4px 12px;display:flex;align-items:center;gap:5px;pointer-events:none">
-      <span id="fl-live-dot" style="width:6px;height:6px;border-radius:50%;background:#BDFF00;display:inline-block"></span>
-      <span style="font-size:9px;font-weight:700;letter-spacing:.08em;color:#BDFF00;font-family:var(--mono)">LIVE</span>
+    <div style="position:absolute;top:14px;right:14px;z-index:10;display:flex;flex-direction:column;align-items:flex-end;gap:5px;pointer-events:none">
+      <div style="background:rgba(4,8,15,0.9);border:1px solid rgba(189,255,0,0.3);border-radius:20px;padding:4px 12px;display:flex;align-items:center;gap:5px;">
+        <span id="fl-live-dot" style="width:6px;height:6px;border-radius:50%;background:#BDFF00;display:inline-block"></span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:.08em;color:#BDFF00;font-family:var(--mono)">LIVE</span>
+      </div>
+      <div id="fl-alert-counter" style="background:rgba(4,8,15,0.9);border:1px solid rgba(255,59,48,0.35);border-radius:20px;padding:3px 10px;display:flex;align-items:center;gap:4px;">
+        <span style="width:5px;height:5px;border-radius:50%;background:#FF3B30;display:inline-block"></span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#FF3B30;font-family:var(--mono)">HIGH RISK: </span>
+        <span id="fl-alert-count" style="font-size:9px;font-weight:700;color:#FF3B30;font-family:var(--mono)">—</span>
+      </div>
     </div>
-    <div style="position:absolute;bottom:12px;right:14px;display:flex;gap:6px;z-index:10">
-      <span style="font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:3px;background:rgba(255,59,48,.15);color:#FF3B30;border:1px solid rgba(255,59,48,.4);display:flex;align-items:center;gap:4px;font-family:var(--mono)"><span style="width:5px;height:5px;border-radius:50%;background:#FF3B30;display:inline-block"></span>HIGH</span>
-      <span style="font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:3px;background:rgba(255,215,0,.15);color:#FFD700;border:1px solid rgba(255,215,0,.4);display:flex;align-items:center;gap:4px;font-family:var(--mono)"><span style="width:5px;height:5px;border-radius:50%;background:#FFD700;display:inline-block"></span>MED</span>
-      <span style="font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:3px;background:rgba(189,255,0,.15);color:#BDFF00;border:1px solid rgba(189,255,0,.4);display:flex;align-items:center;gap:4px;font-family:var(--mono)"><span style="width:5px;height:5px;border-radius:50%;background:#BDFF00;display:inline-block"></span>LOW</span>
+    <div id="fl-map-legend" style="position:absolute;bottom:12px;right:14px;display:flex;gap:6px;z-index:10">
+      <span class="fl-legend-badge" style="font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:3px;background:rgba(255,59,48,.15);color:#FF3B30;border:1px solid rgba(255,59,48,.4);display:flex;align-items:center;gap:4px;font-family:var(--mono)"><span style="width:5px;height:5px;border-radius:50%;background:#FF3B30;display:inline-block"></span>HIGH</span>
+      <span class="fl-legend-badge" style="font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:3px;background:rgba(255,215,0,.15);color:#D97706;border:1px solid rgba(255,215,0,.4);display:flex;align-items:center;gap:4px;font-family:var(--mono)"><span style="width:5px;height:5px;border-radius:50%;background:#FFD700;display:inline-block"></span>MED</span>
+      <span class="fl-legend-badge" style="font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:3px;background:rgba(34,197,94,.15);color:#16a34a;border:1px solid rgba(34,197,94,.4);display:flex;align-items:center;gap:4px;font-family:var(--mono)"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block"></span>LOW</span>
     </div>
   </div>
 
   <!-- AI Signal Predictor -->
-  <div style="background:rgba(13,17,23,0.97);border:1px solid var(--border);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:300px;">
-    <div id="predictor-icon-wrap" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;transition:background 0.2s,border 0.2s;">
-      <svg id="predictor-icon-svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2L9 9H2l5.5 4-2 7L12 16l6.5 4-2-7L22 9h-7z"/>
-      </svg>
+  <div id="predictor-panel" style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:300px;position:relative;">
+
+    <!-- IDLE STATE -->
+    <div id="predictor-idle" style="display:flex;flex-direction:column;align-items:center;">
+      <div id="predictor-icon-wrap" style="width:56px;height:56px;border-radius:50%;background:var(--accent-light);border:1px solid rgba(26,86,219,0.25);display:flex;align-items:center;justify-content:center;margin-bottom:16px;transition:background 0.2s,border 0.2s;">
+        <svg id="predictor-icon-svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L9 9H2l5.5 4-2 7L12 16l6.5 4-2-7L22 9h-7z"/>
+        </svg>
+      </div>
+      <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;letter-spacing:-0.3px">AI Signal Predictor</div>
+      <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;max-width:260px;margin-bottom:18px">
+        Upload a CSV to get an AI fraud risk forecast — trend signals, exposure estimate &amp; recommended actions.
+      </p>
+      <label for="predictor-csv-input"
+        style="display:inline-flex;flex-direction:column;align-items:center;gap:6px;padding:12px 22px;background:var(--off-white);border:1.5px dashed var(--border-mid);border-radius:var(--radius);cursor:pointer;transition:all 0.18s;font-family:var(--font);"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)'"
+        onmouseout="this.style.borderColor='var(--border-mid)';this.style.background='var(--off-white)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span style="font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);font-family:var(--mono)">DROP CSV HERE</span>
+        <input type="file" id="predictor-csv-input" accept=".csv" style="display:none" onchange="runPredictor(this)">
+      </label>
     </div>
-    <div style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;letter-spacing:-0.3px">AI Signal Predictor</div>
-    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;max-width:280px;margin-bottom:20px">
-      Upload a custom CSV to run a predictive simulation based on current market fraud trends.
-    </p>
-    <button onclick="document.getElementById('csv-file').click()"
-      style="display:inline-flex;flex-direction:column;align-items:center;gap:6px;padding:14px 24px;background:rgba(255,255,255,0.04);border:1.5px dashed rgba(255,255,255,0.2);border-radius:var(--radius);cursor:pointer;transition:all 0.18s;font-family:var(--font);"
-      onmouseover="this.style.borderColor='#BDFF00';this.style.background='rgba(189,255,0,0.05)'"
-      onmouseout="this.style.borderColor='rgba(255,255,255,0.2)';this.style.background='rgba(255,255,255,0.04)'">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);font-family:var(--mono)">DROP CSV HERE</span>
-    </button>
+
+    <!-- LOADING STATE -->
+    <div id="predictor-loading" style="display:none;flex-direction:column;align-items:center;gap:12px;">
+      <div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+      <div style="font-size:0.8rem;font-weight:700;color:var(--accent);font-family:var(--mono);letter-spacing:0.05em">ANALYSING SIGNALS…</div>
+      <div id="predictor-loading-msg" style="font-size:0.72rem;color:var(--text-muted);max-width:220px;line-height:1.5">Scanning fraud patterns…</div>
+    </div>
+
+    <!-- RESULT STATE -->
+    <div id="predictor-result" style="display:none;width:100%;text-align:left;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:var(--accent);font-family:var(--mono)">⚡ AI SIGNAL FORECAST</div>
+        <button onclick="resetPredictor()" style="font-size:0.68rem;font-weight:600;color:var(--text-muted);background:var(--off-white);border:1px solid var(--border);border-radius:4px;padding:3px 9px;cursor:pointer;font-family:var(--font)">↺ New File</button>
+      </div>
+      <div id="predictor-result-body" style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;max-height:220px;overflow-y:auto;padding-right:4px;"></div>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="predictor-error" style="display:none;flex-direction:column;align-items:center;gap:10px;">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--high);font-family:var(--mono)">⚠ PREDICTION FAILED</div>
+      <div id="predictor-error-msg" style="font-size:0.74rem;color:var(--text-muted);line-height:1.5;max-width:240px;"></div>
+      <button onclick="resetPredictor()" style="font-size:0.75rem;font-weight:600;color:var(--high);background:var(--high-bg);border:1px solid var(--high-border);border-radius:6px;padding:5px 14px;cursor:pointer;font-family:var(--font)">Try Again</button>
+    </div>
+
   </div>
 
 </div>
@@ -1869,7 +1943,8 @@ body.dark-theme .main{background:#080B10}
     ctx.clearRect(0,0,w,h);
 
     /* Ocean */
-    ctx.fillStyle='#04080f'; ctx.fillRect(0,0,w,h);
+    var isLight = document.body.classList.contains('light-theme');
+    ctx.fillStyle = isLight ? '#ffffff' : '#07111f'; ctx.fillRect(0,0,w,h);
 
     /* Graticule */
     ctx.beginPath(); pathGen(d3.geoGraticule()());
@@ -1878,8 +1953,8 @@ body.dark-theme .main{background:#080B10}
     /* Country fills */
     geo.features.forEach(function(f){
       ctx.beginPath(); pathGen(f);
-      ctx.fillStyle='#0b1e10'; ctx.fill();
-      ctx.strokeStyle='#1d3f24'; ctx.lineWidth=0.5; ctx.stroke();
+      ctx.fillStyle = document.body.classList.contains('light-theme') ? '#e8edf2' : '#0d2518'; ctx.fill();
+      ctx.strokeStyle = document.body.classList.contains('light-theme') ? '#b0bec8' : '#2a5a35'; ctx.lineWidth=0.5; ctx.stroke();
     });
 
     /* City halo glows */
@@ -1958,9 +2033,10 @@ body.dark-theme .main{background:#080B10}
     if(iw){iw.style.background=dark?'rgba(189,255,0,0.1)':'rgba(26,86,219,0.1)';iw.style.border='1px solid '+(dark?'rgba(189,255,0,0.3)':'rgba(26,86,219,0.3)');}
     if(is){is.style.stroke=dark?'#BDFF00':'#1a56db';}
     if(btn){btn.style.background=dark?'#161b22':'#ffffff';btn.style.borderColor=dark?'#30363d':'#d0d7e3';btn.style.color=dark?'#E6EDF3':'#0F1623';}
+    // FIXED — light theme gets a deep navy instead of plant-green black
     if(mc){
-      mc.style.background=dark?'#04080f':'#0f1f14';
-      mc.style.borderColor=dark?'#1a2433':'#1a3020';
+      mc.style.background='';
+      mc.style.border='';
     }
   }
   syncUI();
@@ -1981,7 +2057,111 @@ body.dark-theme .main{background:#080B10}
   window.addEventListener('resize',function(){
     cancelAnimationFrame(raf); resize(); buildProj(); frame();
   });
+
+  // ── Dynamic map state ──
+  // cityRiskOverride[i] = 0|1|2 set from analysisResult, or null to use default
+  var cityRiskOverride = cities.map(function(){ return null; });
+
+  // Geo keyword → city index lookup (matches explanation text or flag context)
+  var cityKeywords = [
+    ['new york','usa','us','united states','america','chicago'],     // 0 New York
+    ['london','uk','united kingdom','britain','england'],            // 1 London
+    ['moscow','russia','russian'],                                   // 2 Moscow
+    ['mumbai','india','delhi','bangalore','chennai','kolkata'],      // 3 Mumbai
+    ['singapore','southeast asia','sea'],                           // 4 Singapore
+    ['shanghai','china','beijing','chinese'],                       // 5 Shanghai
+    ['lagos','nigeria','west africa','africa'],                     // 6 Lagos
+    ['são paulo','sao paulo','brazil','latin america'],             // 7 São Paulo
+    ['sydney','australia','auckland','new zealand'],                // 8 Sydney
+    ['dubai','uae','gulf','middle east','saudi','qatar'],           // 9 Dubai
+    ['almaty','kazakhstan','central asia','uzbekistan'],            // 10 Almaty
+    ['paris','france','french','europe'],                           // 11 Paris
+    ['berlin','germany','german','austria','swiss'],                // 12 Berlin
+    ['johannesburg','south africa','cape town','kenya','ghana'],    // 13 Johannesburg
+    ['tokyo','japan','japanese','osaka'],                           // 14 Tokyo
+    ['delhi','india','mumbai','hyderabad'],                         // 15 Delhi (dup intentional)
+    ['chicago','new york','usa'],                                   // 16 Chicago (dup intentional)
+    ['seoul','korea','korean'],                                     // 17 Seoul
+    ['kyiv','ukraine','ukrainian','eastern europe'],                // 18 Kyiv
+  ];
+
+  function riskToIndex(level){
+    if(level==='HIGH') return 2;
+    if(level==='MEDIUM') return 1;
+    return 0;
+  }
+
+  function findCityForText(text){
+    var t = (text||'').toLowerCase();
+    for(var ci=0; ci<cityKeywords.length; ci++){
+      for(var ki=0; ki<cityKeywords[ci].length; ki++){
+        if(t.indexOf(cityKeywords[ci][ki])!==-1) return ci;
+      }
+    }
+    return -1;
+  }
+
+  function refreshMapFromResult(result){
+    if(!result) return;
+    var s = result.summary || {};
+    var txns = result.transactions || [];
+
+    // 1. Reset overrides to default city risk levels
+    cityRiskOverride = cities.map(function(){ return null; });
+
+    // 2. For geo_anomaly transactions, find nearest city and upgrade its risk
+    txns.forEach(function(txn){
+      if(!txn.flags || txn.flags.indexOf('geo_anomaly')===-1) return;
+      var text = (txn.explanation||'') + ' ' + (txn.merchant||'') + ' ' + (txn.transaction_id||'');
+      var ci = findCityForText(text);
+      if(ci===-1) return;
+      var newRisk = riskToIndex(txn.risk_level);
+      // Only upgrade risk, never downgrade
+      if(cityRiskOverride[ci]===null || newRisk > cityRiskOverride[ci]){
+        cityRiskOverride[ci] = newRisk;
+      }
+    });
+
+    // Apply overrides to live cities array
+    cities.forEach(function(c, i){
+      if(cityRiskOverride[i]!==null) c[3] = cityRiskOverride[i];
+    });
+
+    // 3. Rebuild packets density based on high/medium count
+    var highCount = s.high_risk || 0;
+    var medCount  = s.medium_risk || 0;
+    var baseArcs  = [
+      [2,1,2],[3,1,2],[0,1,1],[5,13,1],[6,1,1],
+      [4,1,0],[3,4,0],[7,0,0],[9,3,2],[10,2,2],
+    ];
+    var newPackets = [];
+    // Always keep 2 baseline arcs
+    baseArcs.slice(0,2).forEach(function(a){
+      newPackets.push({from:a[0],to:a[1],risk:a[2],t:Math.random(),speed:0.004+Math.random()*0.003});
+    });
+    // Add red packets proportional to high risk (max 8 extra)
+    var extraHigh = Math.min(8, Math.floor(highCount / 3));
+    for(var i=0;i<extraHigh;i++){
+      var a = baseArcs[i % baseArcs.length];
+      newPackets.push({from:a[0],to:a[1],risk:2,t:Math.random(),speed:0.005+Math.random()*0.004});
+    }
+    // Add yellow packets proportional to medium risk (max 5 extra)
+    var extraMed = Math.min(5, Math.floor(medCount / 5));
+    for(var j=0;j<extraMed;j++){
+      var b = baseArcs[(j+3) % baseArcs.length];
+      newPackets.push({from:b[0],to:b[1],risk:1,t:Math.random(),speed:0.004+Math.random()*0.003});
+    }
+    packets = newPackets;
+
+    // 4. Update alert counter overlay
+    var counter = document.getElementById('fl-alert-count');
+    if(counter) counter.textContent = highCount > 0 ? highCount : '0';
+  }
+
+  // Expose hook for showDashboard to call
+  window.flMapRefresh = refreshMapFromResult;
 })();
+
 </script>
 </div><!-- end tab-analyse -->
 
@@ -2766,6 +2946,8 @@ function showError(msg) {
 // ── Dashboard ──
 function showDashboard(data, originalRows) {
   console.log('showDashboard called');
+  // Refresh dynamic map if available
+  if(typeof window.flMapRefresh === 'function') window.flMapRefresh(data);
   stopLoading();
   document.getElementById('loading-card').classList.add('hidden');
   document.getElementById('upload-card').classList.add('hidden');
@@ -3457,6 +3639,202 @@ document.addEventListener(
         );
     }
 );
+
+// ── AI Signal Predictor ──
+function runPredictor(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const key = getApiKey();
+  if (!key) {
+    alert('Please save your Gemini API key first.');
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const parsed = parseCSV(e.target.result);
+    if (!parsed.rows.length) { alert('CSV appears empty.'); return; }
+    predictFromRows(parsed.rows.slice(0, 50), key);
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+async function predictFromRows(rows, apiKey) {
+  document.getElementById('predictor-idle').style.display    = 'none';
+  document.getElementById('predictor-result').style.display  = 'none';
+  document.getElementById('predictor-error').style.display   = 'none';
+  document.getElementById('predictor-loading').style.display = 'flex';
+
+  const msgs = ['Scanning velocity patterns…','Mapping geo risk signals…','Projecting exposure trends…','Generating forecast…'];
+  let mi = 0;
+  const msgEl = document.getElementById('predictor-loading-msg');
+  const msgTimer = setInterval(() => { msgEl.textContent = msgs[mi++ % msgs.length]; }, 1800);
+
+  const prompt = `You are a financial fraud intelligence system. Given raw transaction records, produce a concise PREDICTIVE RISK FORECAST.
+
+Reply in plain text only. No JSON, no markdown. Use these exact labels on their own lines:
+
+OVERALL RISK LEVEL: [LOW / MEDIUM / HIGH / CRITICAL]
+TREND: [1-2 sentences on fraud direction]
+EXPOSURE ESTIMATE: [% of transactions at risk and rough monetary exposure]
+TOP SIGNALS DETECTED: [3 fraud signal types, comma-separated]
+RECOMMENDED ACTIONS: [3 specific numbered actions for a fraud team]
+CONFIDENCE: [LOW / MEDIUM / HIGH]
+
+Keep total response under 220 words. Be specific to the data.
+
+Transaction data (${rows.length} records):
+${JSON.stringify(rows, null, 1)}`;
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 512 }
+        })
+      }
+    );
+    clearInterval(msgTimer);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    const text = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+    if (!text) throw new Error('Empty response from AI.');
+
+    const isDark = document.body.classList.contains('dark-theme');
+    const highCol = isDark ? '#FF3B30' : '#dc2626';
+    const medCol  = isDark ? '#FFD700' : '#d97706';
+    const lowCol  = isDark ? '#22c55e' : '#16a34a';
+
+    // Parse sections
+    const allLabels = ['OVERALL RISK LEVEL:','TREND:','EXPOSURE ESTIMATE:','TOP SIGNALS DETECTED:','RECOMMENDED ACTIONS:','CONFIDENCE:'];
+    const icons = {'OVERALL RISK LEVEL:':'🎯','TREND:':'📈','EXPOSURE ESTIMATE:':'💰','TOP SIGNALS DETECTED:':'⚡','RECOMMENDED ACTIONS:':'🛡️','CONFIDENCE:':'📊'};
+    const parsed2 = [];
+    allLabels.forEach((label, idx) => {
+      const pos = text.indexOf(label);
+      if (pos === -1) return;
+      const nextPos = allLabels.slice(idx+1).reduce((min, l) => {
+        const p = text.indexOf(l, pos + label.length);
+        return (p !== -1 && p < min) ? p : min;
+      }, text.length);
+      parsed2.push({ label, content: text.slice(pos + label.length, nextPos).trim() });
+    });
+
+    // Extract risk level for the bar
+    const riskSection = parsed2.find(s => s.label === 'OVERALL RISK LEVEL:');
+    const riskText = (riskSection?.content || '').toUpperCase();
+    const riskMap = { LOW: { pct: 20, col: lowCol, label: 'LOW' }, MEDIUM: { pct: 50, col: medCol, label: 'MEDIUM' }, HIGH: { pct: 78, col: highCol, label: 'HIGH' }, CRITICAL: { pct: 100, col: highCol, label: 'CRITICAL' } };
+    const riskKey = Object.keys(riskMap).find(k => riskText.includes(k)) || 'MEDIUM';
+    const risk = riskMap[riskKey];
+
+    const rb = document.getElementById('predictor-result-body');
+    rb.innerHTML = '';
+
+    // ── Risk Meter Bar ──
+    const meterDiv = document.createElement('div');
+    meterDiv.style.cssText = 'margin-bottom:16px;padding:12px 14px;background:var(--off-white);border:1px solid var(--border);border-radius:10px;';
+    meterDiv.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:0.68rem;font-weight:700;color:var(--text-muted);font-family:var(--mono);letter-spacing:0.06em">SIGNAL RISK LEVEL</span>
+        <span style="font-size:0.78rem;font-weight:800;color:${risk.col};font-family:var(--mono);letter-spacing:0.05em">${risk.label}</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;position:relative;">
+        <div id="pred-risk-bar" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,${lowCol},${risk.col});transition:width 1.2s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 8px ${risk.col}55;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;">
+        <span style="font-size:0.62rem;color:var(--text-muted);font-family:var(--mono)">LOW</span>
+        <span style="font-size:0.62rem;color:var(--text-muted);font-family:var(--mono)">MEDIUM</span>
+        <span style="font-size:0.62rem;color:var(--text-muted);font-family:var(--mono)">HIGH</span>
+        <span style="font-size:0.62rem;color:var(--text-muted);font-family:var(--mono)">CRITICAL</span>
+      </div>`;
+    rb.appendChild(meterDiv);
+
+    // Animate bar after paint
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const bar = document.getElementById('pred-risk-bar');
+        if (bar) bar.style.width = risk.pct + '%';
+      }, 80);
+    });
+
+    // ── Animated Sections ──
+    parsed2.forEach((sec, i) => {
+      // Skip OVERALL RISK LEVEL — shown in bar already
+      if (sec.label === 'OVERALL RISK LEVEL:') return;
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.style.cssText = 'margin-top:10px;opacity:0;transform:translateY(6px);transition:opacity 0.38s ease,transform 0.38s ease;';
+
+        let contentHtml = sec.content
+          .replace(/\b(HIGH|CRITICAL)\b/g, `<span style="color:${highCol};font-weight:700">$&</span>`)
+          .replace(/\bMEDIUM\b/g, `<span style="color:${medCol};font-weight:700">MEDIUM</span>`)
+          .replace(/\bLOW\b/g, `<span style="color:${lowCol};font-weight:700">LOW</span>`);
+
+        // Special rendering for TREND — add a small sparkline-style indicator
+        if (sec.label === 'TREND:') {
+          const trendUp = sec.content.toLowerCase().match(/escalat|increas|rising|surging|growing|spike/);
+          const arrow = trendUp ? `<span style="color:${highCol};font-size:0.9rem;margin-left:4px">↑</span>` : `<span style="color:${lowCol};font-size:0.9rem;margin-left:4px">→</span>`;
+          div.innerHTML = `
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <span style="font-size:0.85rem">${icons[sec.label]}</span>
+              <span style="font-weight:700;color:var(--accent);font-family:var(--mono);font-size:0.67rem;letter-spacing:0.07em">${sec.label}</span>
+              ${arrow}
+            </div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;padding-left:22px;">${contentHtml}</div>`;
+        }
+        // Special rendering for TOP SIGNALS — pill chips
+        else if (sec.label === 'TOP SIGNALS DETECTED:') {
+          const chips = sec.content.split(',').map(s => s.trim()).filter(Boolean).map(s =>
+            `<span style="display:inline-block;padding:2px 8px;background:var(--accent-light);color:var(--accent);border:1px solid var(--border-mid);border-radius:20px;font-size:0.68rem;font-weight:600;margin:2px 3px 2px 0;font-family:var(--mono)">${s}</span>`
+          ).join('');
+          div.innerHTML = `
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+              <span style="font-size:0.85rem">${icons[sec.label]}</span>
+              <span style="font-weight:700;color:var(--accent);font-family:var(--mono);font-size:0.67rem;letter-spacing:0.07em">${sec.label}</span>
+            </div>
+            <div style="padding-left:22px;">${chips}</div>`;
+        }
+        // Default rendering
+        else {
+          div.innerHTML = `
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <span style="font-size:0.85rem">${icons[sec.label]}</span>
+              <span style="font-weight:700;color:var(--accent);font-family:var(--mono);font-size:0.67rem;letter-spacing:0.07em">${sec.label}</span>
+            </div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;padding-left:22px;">${contentHtml}</div>`;
+        }
+
+        rb.appendChild(div);
+        requestAnimationFrame(() => {
+          setTimeout(() => { div.style.opacity = '1'; div.style.transform = 'translateY(0)'; }, 20);
+        });
+      }, i * 200);
+    });
+
+    document.getElementById('predictor-loading').style.display = 'none';
+    document.getElementById('predictor-result').style.display  = 'block';
+
+  } catch(err) {
+    clearInterval(msgTimer);
+    document.getElementById('predictor-error-msg').textContent = err.message || 'Unknown error.';
+    document.getElementById('predictor-loading').style.display = 'none';
+    document.getElementById('predictor-error').style.display   = 'flex';
+  }
+}
+
+function resetPredictor() {
+  document.getElementById('predictor-result').style.display  = 'none';
+  document.getElementById('predictor-error').style.display   = 'none';
+  document.getElementById('predictor-loading').style.display = 'none';
+  document.getElementById('predictor-idle').style.display    = 'flex';
+}
 </script>
 
 </body>
