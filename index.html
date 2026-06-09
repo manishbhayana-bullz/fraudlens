@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
 /* ── CSS Variables ── */
 :root {
@@ -1263,6 +1265,301 @@ body.dark-theme .pattern-list li {
   .flag-weight-row { grid-template-columns: 110px 1fr 36px; gap: 7px; }
 }
 
+/* ══════════════════════════════════════════
+   MOBILE-ONLY STYLES  (≤ 767px)
+   Desktop layout is completely untouched.
+   ══════════════════════════════════════════ */
+
+/* --- Material Symbols helper --- */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+@media (max-width: 767px) {
+
+  /* === Global mobile body === */
+  body {
+    min-height: 100dvh;
+    background: #080B10 !important;
+  }
+
+  /* === Hide desktop chrome === */
+  .header { display: none !important; }
+  aside   { display: none !important; }
+
+  /* === Main content: no sidebar offset, extra bottom for nav bar === */
+  .main {
+    margin-left: 0 !important;
+    padding-top: 72px !important;   /* below mobile top app bar */
+    padding-bottom: 88px !important; /* above mobile bottom nav */
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* === Mobile Top App Bar === */
+  #mobile-topbar {
+    display: flex;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    height: 60px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: rgba(16, 19, 25, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  #mobile-topbar .mob-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #mobile-topbar .mob-logo .mob-shield {
+    font-size: 22px;
+    color: #BDFF00;
+  }
+  #mobile-topbar .mob-logo .mob-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: #BDFF00;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  #mobile-topbar .mob-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  #mobile-topbar .mob-currency {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #BDFF00;
+    cursor: pointer;
+  }
+  #mobile-topbar .mob-theme-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 5px 8px;
+    color: #E6EDF3;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+
+  /* === Mobile Bottom Nav Bar === */
+  #mobile-bottomnav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 200;
+    height: 72px;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    background: rgba(16, 19, 25, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .mob-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 8px 20px;
+    border-radius: 999px;
+    transition: background 0.18s, color 0.18s;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(139, 148, 158, 0.7);
+  }
+  .mob-nav-btn.active {
+    background: rgba(189, 255, 0, 0.08);
+    color: #BDFF00;
+  }
+  .mob-nav-btn .material-symbols-outlined {
+    font-size: 22px;
+  }
+  .mob-nav-btn.active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* === Glass Card style on mobile === */
+  .card, .metric-card, .insight-card, .risk-chart-card, .history-card {
+    background: rgba(13, 17, 23, 0.82) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+    border-radius: 12px !important;
+  }
+
+  /* === Metrics: 2 col, then full-width for score card === */
+  .metrics {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* === Map + Predictor: stack vertically on mobile === */
+  #map-predictor-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  #fl-map-card {
+    min-height: 200px !important;
+  }
+
+  /* === Txn table: horizontal scroll === */
+  .txn-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .txn-table { min-width: 560px !important; }
+  .cust-table-wrap { overflow-x: auto !important; }
+  .cust-table { min-width: 520px !important; }
+
+  /* === Filter tabs: scrollable row === */
+  .filter-bar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .filter-tabs {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+
+  /* === Search full width on mobile === */
+  .search-wrap { width: 100% !important; }
+  .search-input { width: 100% !important; }
+  .search-input:focus { width: 100% !important; }
+
+  /* === Analyse row button full width === */
+  .analyse-row { flex-direction: column !important; align-items: stretch !important; }
+  .btn-primary { width: 100% !important; justify-content: center !important; }
+
+  /* === Dashboard header on mobile === */
+  .dashboard-header { flex-direction: column !important; gap: 10px !important; }
+  .dashboard-title { font-size: 1.1rem !important; }
+
+  /* === API key row on mobile === */
+  .api-key-row { flex-direction: column !important; align-items: stretch !important; }
+  .api-key-input, .btn-save-key { width: 100% !important; }
+
+  /* === Upload zone compact on mobile === */
+  .upload-zone { padding: 32px 16px !important; }
+
+  /* === Insight grid single col === */
+  .insight-grid { grid-template-columns: 1fr !important; }
+
+  /* === Chart bar row: compact === */
+  .chart-bar-row { grid-template-columns: 56px 1fr 60px !important; gap: 8px !important; }
+  .flag-weight-row { grid-template-columns: 100px 1fr 34px !important; gap: 6px !important; }
+
+  /* === Pagination compact === */
+  .pagination-wrap { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+
+  /* === History cards === */
+  .history-card { grid-template-columns: 1fr !important; }
+  .history-card-stats { justify-content: flex-start !important; flex-wrap: wrap !important; }
+
+  /* === Ambient glow blobs (mobile visual polish) === */
+  #mob-glow-wrap {
+    display: block;
+    position: fixed;
+    pointer-events: none;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    overflow: hidden;
+  }
+  #mob-glow-wrap .g1 {
+    position: absolute;
+    top: -10%; left: -10%;
+    width: 55%; height: 45%;
+    background: rgba(189,255,0,0.07);
+    filter: blur(100px);
+    border-radius: 50%;
+  }
+  #mob-glow-wrap .g2 {
+    position: absolute;
+    bottom: -10%; right: -10%;
+    width: 45%; height: 40%;
+    background: rgba(255,59,48,0.05);
+    filter: blur(90px);
+    border-radius: 50%;
+  }
+
+  /* Ensure main content sits above glow */
+  .main, #mobile-topbar, #mobile-bottomnav { position: relative; z-index: 1; }
+  #mobile-topbar, #mobile-bottomnav { z-index: 200; }
+
+  /* === Light theme overrides on mobile === */
+  body.light-theme #mobile-topbar {
+    background: rgba(255,255,255,0.9) !important;
+    border-bottom-color: rgba(0,0,0,0.08) !important;
+  }
+  body.light-theme #mobile-topbar .mob-logo .mob-title { color: #1A56DB !important; }
+  body.light-theme #mobile-topbar .mob-logo .mob-shield { color: #1A56DB !important; }
+  body.light-theme #mobile-topbar .mob-currency { color: #1A56DB !important; border-color: rgba(26,86,219,0.2) !important; background: rgba(26,86,219,0.06) !important; }
+  body.light-theme #mobile-topbar .mob-theme-btn { color: #0F1623 !important; }
+  body.light-theme #mobile-bottomnav {
+    background: rgba(255,255,255,0.92) !important;
+    border-top-color: rgba(0,0,0,0.08) !important;
+  }
+  body.light-theme .mob-nav-btn { color: rgba(90,100,120,0.7) !important; }
+  body.light-theme .mob-nav-btn.active { color: #1A56DB !important; background: rgba(26,86,219,0.08) !important; }
+  body.light-theme #mob-glow-wrap .g1 { background: rgba(26,86,219,0.04) !important; }
+  body.light-theme #mob-glow-wrap .g2 { background: rgba(220,38,38,0.03) !important; }
+}
+
+/* On desktop: hide the mobile-only elements */
+@media (min-width: 768px) {
+  #mobile-topbar    { display: none !important; }
+  #mobile-bottomnav { display: none !important; }
+  #mob-glow-wrap    { display: none !important; }
+}
+
 /* ── Utilities ── */
 .hidden { display: none !important; }
 .fade-in { animation: fadeIn 0.35s ease forwards; }
@@ -1512,7 +1809,41 @@ body.dark-theme .main{background:#080B10}
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- ═══ MOBILE-ONLY: Ambient Glow ═══ -->
+<div id="mob-glow-wrap">
+  <div class="g1"></div>
+  <div class="g2"></div>
+</div>
+
+<!-- ═══ MOBILE-ONLY: Top App Bar ═══ -->
+<div id="mobile-topbar">
+  <div class="mob-logo">
+    <span class="material-symbols-outlined mob-shield">shield_person</span>
+    <span class="mob-title">FraudLens</span>
+  </div>
+  <div class="mob-right">
+    <div class="mob-currency">
+      USD <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle">expand_more</span>
+    </div>
+    <button class="mob-theme-btn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+  </div>
+</div>
+
+<!-- ═══ MOBILE-ONLY: Bottom Nav Bar ═══ -->
+<nav id="mobile-bottomnav">
+  <button class="mob-nav-btn active" id="mob-nav-analyse" onclick="showTab('analyse');setMobNav('analyse')">
+    <span class="material-symbols-outlined">query_stats</span>
+    Analyse
+  </button>
+  <button class="mob-nav-btn" id="mob-nav-history" onclick="showTab('history');setMobNav('history')">
+    <span class="material-symbols-outlined">history</span>
+    History
+  </button>
+  <button class="mob-nav-btn" id="mob-nav-about" onclick="showTab('about');setMobNav('about')">
+    <span class="material-symbols-outlined">info</span>
+    About
+  </button>
+</nav>
 <header class="header">
   <div class="logo">
     <div class="logo-icon">
@@ -3835,6 +4166,23 @@ function resetPredictor() {
   document.getElementById('predictor-loading').style.display = 'none';
   document.getElementById('predictor-idle').style.display    = 'flex';
 }
+
+/* ── Mobile Nav Sync ── */
+function setMobNav(tab) {
+  ['analyse','history','about'].forEach(function(t) {
+    var btn = document.getElementById('mob-nav-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+}
+
+/* Patch showTab to also sync mobile nav */
+(function() {
+  var _orig = window.showTab;
+  window.showTab = function(tab) {
+    if (_orig) _orig(tab);
+    setMobNav(tab);
+  };
+})();
 </script>
 
 </body>
